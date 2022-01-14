@@ -5,40 +5,62 @@
 
 using namespace std;
 
-string solution(vector<string> participant, vector<string> completion) {
-	string answer = "";
-	return answer;
-}
-
 void main() {
-	string Test1 = "aA";
-	string Test2 = "aAq";
+	vector<int> nums = { 1,2,7,6,4 };
+
+	bool CountResult = true;
+
+	int answer = 0;
+
+	vector<int> Temp;
+
+	for (int iF = 0; iF < nums.size() - 2; iF++) {
+		for (int iS = iF + 1; iS < nums.size() - 1; iS++) {
+			for (int iT = iS + 1; iT < nums.size(); iT++) {
+					Temp.push_back(nums[iF] + nums[iS] + nums[iT]);
+			}
+		}
+	}
+
+	for (int i = 0; i < Temp.size(); i++) {
+		for (int k = 2; k < Temp[i]; k++) {
+			if (0 == (Temp[i] % k)) {
+				CountResult = false;
+				break;
+			}
+		}
+
+		if (CountResult)
+			answer++;
+		CountResult = true;
+	}
+
+
+	cout << answer << endl;
+
 }
 
 
 /*
-수많은 마라톤 선수들이 마라톤에 참여하였습니다. 단 한 명의 선수를 제외하고는 모든 선수가 마라톤을 완주하였습니다.
-
-마라톤에 참여한 선수들의 이름이 담긴 배열 participant와 완주한 선수들의 이름이 담긴 배열 completion이 주어질 때, 완주하지 못한 선수의 이름을 return 하도록 solution 함수를 작성해주세요.
+* 주어진 숫자 중 3개의 수를 더했을 때 소수가 되는 경우의 개수를 구하려고 합니다. 
+숫자들이 들어있는 배열 nums가 매개변수로 주어질 때, nums에 있는 숫자들 중 서로 다른 3개를 골라 더했을 때 소수가 되는 경우의 개수를 return 하도록 solution 함수를 완성해주세요.
 
 제한사항
-마라톤 경기에 참여한 선수의 수는 1명 이상 100,000명 이하입니다.
-completion의 길이는 participant의 길이보다 1 작습니다.
-참가자의 이름은 1개 이상 20개 이하의 알파벳 소문자로 이루어져 있습니다.
-참가자 중에는 동명이인이 있을 수 있습니다.
+nums에 들어있는 숫자의 개수는 3개 이상 50개 이하입니다.
+nums의 각 원소는 1 이상 1,000 이하의 자연수이며, 중복된 숫자가 들어있지 않습니다.
 입출력 예
-participant	completion	return
-["leo", "kiki", "eden"]	["eden", "kiki"]	"leo"
-["marina", "josipa", "nikola", "vinko", "filipa"]	["josipa", "filipa", "marina", "nikola"]	"vinko"
-["mislav", "stanko", "mislav", "ana"]	["stanko", "ana", "mislav"]	"mislav"
+nums	result
+[1,2,3,4]	1
+[1,2,7,6,4]	4
 입출력 예 설명
-예제 #1
-"leo"는 참여자 명단에는 있지만, 완주자 명단에는 없기 때문에 완주하지 못했습니다.
+입출력 예 #1
+[1,2,4]를 이용해서 7을 만들 수 있습니다.
 
-예제 #2
-"vinko"는 참여자 명단에는 있지만, 완주자 명단에는 없기 때문에 완주하지 못했습니다.
+입출력 예 #2
+[1,2,4]를 이용해서 7을 만들 수 있습니다.
+[1,4,6]을 이용해서 11을 만들 수 있습니다.
+[2,4,7]을 이용해서 13을 만들 수 있습니다.
+[4,6,7]을 이용해서 17을 만들 수 있습니다.
 
-예제 #3
-"mislav"는 참여자 명단에는 두 명이 있지만, 완주자 명단에는 한 명밖에 없기 때문에 한명은 완주하지 못했습니다.
 
 */
