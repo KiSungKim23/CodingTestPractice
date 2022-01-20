@@ -4,60 +4,56 @@
 
 using namespace std;
 
-int solution(int left, int right) {
+int solution(int n) {
     int answer = 0;
-
-    int Temp = 0;
-
-    for (int i = left; i <= right; i++) {
-        for (int j = 2; j <= i; j++) {
-            if ((i % j) == 0) {
-                Temp++;
-            }
-        }
-        if (Temp % 2) answer += i;
-        else answer -= i;
-
-        Temp = 0;
+    
+    vector<int> answerArr;
+    
+    while (true) {
+        answerArr.push_back(n % 3);
+        if (n / 3 == 0) break;
+        n /= 3;
     }
 
+    int iSquared = 1;
+
+    while (answerArr.size() != 0)
+    {
+        
+        answer += answerArr.back() * iSquared;
+        answerArr.pop_back();
+        iSquared *= 3;
+    }
 
     return answer;
 }
 void main() {
-	
-    cout << solution(1, 13) << endl;
+    cout << solution(45);
+
 }
 
 
 /*
 * 문제 설명
-두 정수 left와 right가 매개변수로 주어집니다. left부터 right까지의 모든 수들 중에서, 약수의 개수가 짝수인 수는 더하고, 약수의 개수가 홀수인 수는 뺀 수를 return 하도록 solution 함수를 완성해주세요.
+자연수 n이 매개변수로 주어집니다. n을 3진법 상에서 앞뒤로 뒤집은 후, 이를 다시 10진법으로 표현한 수를 return 하도록 solution 함수를 완성해주세요.
 
 제한사항
-1 ≤ left ≤ right ≤ 1,000
+n은 1 이상 100,000,000 이하인 자연수입니다.
 입출력 예
-left	right	result
-13	17	43
-24	27	52
+n	result
+45	7
+125	229
 입출력 예 설명
 입출력 예 #1
 
-다음 표는 13부터 17까지의 수들의 약수를 모두 나타낸 것입니다.
-수	약수	약수의 개수
-13	1, 13	2
-14	1, 2, 7, 14	4
-15	1, 3, 5, 15	4
-16	1, 2, 4, 8, 16	5
-17	1, 17	2
-따라서, 13 + 14 + 15 - 16 + 17 = 43을 return 해야 합니다.
+답을 도출하는 과정은 다음과 같습니다.
+n (10진법)	n (3진법)	앞뒤 반전(3진법)	10진법으로 표현
+45	1200	0021	7
+따라서 7을 return 해야 합니다.
 입출력 예 #2
 
-다음 표는 24부터 27까지의 수들의 약수를 모두 나타낸 것입니다.
-수	약수	약수의 개수
-24	1, 2, 3, 4, 6, 8, 12, 24	8
-25	1, 5, 25	3
-26	1, 2, 13, 26	4
-27	1, 3, 9, 27	4
-따라서, 24 - 25 + 26 + 27 = 52를 return 해야 합니다.
+답을 도출하는 과정은 다음과 같습니다.
+n (10진법)	n (3진법)	앞뒤 반전(3진법)	10진법으로 표현
+125	11122	22111	229
+따라서 229를 return 해야 합니다.
 */
