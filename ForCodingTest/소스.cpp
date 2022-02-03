@@ -6,53 +6,45 @@
 #include<algorithm>
 
 using namespace std;
+long long solution(int a, int b) {
+    long long answer = 0;
 
-vector<int> solution(vector<int> arr, int divisor) {
-    vector<int> answer;
+    int iMax = 0;
+    int iMin = 0;
 
-    for (int i = 0; i < arr.size(); i++) {
-        if(arr[i] % divisor == 0) answer.push_back(arr[i]);
+    if (a < b) {
+        iMax = b;
+        iMin = a;
+    }
+    else {
+        iMax = a;
+        iMin = b;
     }
 
-    if (answer.size() == 0) answer.push_back(-1);
-
-    sort(answer.begin(), answer.end());
+    for (int i = iMin; i < iMax + 1; i++) {
+        answer += i;
+    }
 
     return answer;
 }
-
 void main() {
-    vector<int> arr = { 5, 9, 7, 10 };
-    vector<int> arrAnswer = solution(arr, 5);
-
-    for (int i = 0; i < arrAnswer.size(); i++) {
-        cout << arrAnswer[i] << endl;
-    }
+    cout << solution(5, 3);
 }
 
 /*
-* 
-array의 각 element 중 divisor로 나누어 떨어지는 값을 오름차순으로 정렬한 배열을 반환하는 함수, solution을 작성해주세요.
-divisor로 나누어 떨어지는 element가 하나도 없다면 배열에 -1을 담아 반환하세요.
+* 두 정수 a, b가 주어졌을 때 a와 b 사이에 속한 모든 정수의 합을 리턴하는 함수, solution을 완성하세요.
+예를 들어 a = 3, b = 5인 경우, 3 + 4 + 5 = 12이므로 12를 리턴합니다.
 
-제한사항
-arr은 자연수를 담은 배열입니다.
-정수 i, j에 대해 i ≠ j 이면 arr[i] ≠ arr[j] 입니다.
-divisor는 자연수입니다.
-array는 길이 1 이상인 배열입니다.
+제한 조건
+a와 b가 같은 경우는 둘 중 아무 수나 리턴하세요.
+a와 b는 -10,000,000 이상 10,000,000 이하인 정수입니다.
+a와 b의 대소관계는 정해져있지 않습니다.
 입출력 예
-arr	divisor	return
-[5, 9, 7, 10]	5	[5, 10]
-[2, 36, 1, 3]	1	[1, 2, 3, 36]
-[3,2,6]	10	[-1]
-입출력 예 설명
-입출력 예#1
-arr의 원소 중 5로 나누어 떨어지는 원소는 5와 10입니다. 따라서 [5, 10]을 리턴합니다.
+a	b	return
+3	5	12
+3	3	3
+5	3	12
 
-입출력 예#2
-arr의 모든 원소는 1으로 나누어 떨어집니다. 원소를 오름차순으로 정렬해 [1, 2, 3, 36]을 리턴합니다.
 
-입출력 예#3
-3, 2, 6은 10으로 나누어 떨어지지 않습니다. 나누어 떨어지는 원소가 없으므로 [-1]을 리턴합니다.
 
 */
