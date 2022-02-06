@@ -7,27 +7,31 @@
 
 using namespace std; 
 
+bool solution(string s) {
+    bool answer = true;
 
+    (s.size() == 4 || s.size() == 6) ? answer = true : answer = false;
 
-string solution(string s) {
-    string answer = s;
-    sort(answer.begin(), answer.end(), greater<char>());
+    if (answer) {
+        for (int i = 0; i < s.size(); i++) if (s[i] < '0' || s[i] > '9') return false;
+    }
+
     return answer;
 }
 
 void main() {
-    cout << solution("Zbcdefg") << endl;
+    cout << solution("1a34");
 }
 
 /*
 *문제 설명
-문자열 s에 나타나는 문자를 큰것부터 작은 순으로 정렬해 새로운 문자열을 리턴하는 함수, solution을 완성해주세요.
-s는 영문 대소문자로만 구성되어 있으며, 대문자는 소문자보다 작은 것으로 간주합니다.
+문자열 s의 길이가 4 혹은 6이고, 숫자로만 구성돼있는지 확인해주는 함수, solution을 완성하세요. 예를 들어 s가 "a234"이면 False를 리턴하고 "1234"라면 True를 리턴하면 됩니다.
 
 제한 사항
-str은 길이 1 이상인 문자열입니다.
+s는 길이 1 이상, 길이 8 이하인 문자열입니다.
 입출력 예
 s	return
-"Zbcdefg"	"gfedcbZ"
+"a234"	false
+"1234"	true
 
 */
