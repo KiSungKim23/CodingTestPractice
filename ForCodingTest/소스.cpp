@@ -7,33 +7,28 @@
 
 using namespace std; 
 
-vector<int> solution(long long n) {
-    vector<int> answer;
+long long solution(long long n) {
+    long long answer;
     string snToString = to_string(n);
 
-    for (int i = snToString.size() - 1; i >= 0; i--) {
-        answer.push_back(snToString[i] - '0');
-    }
-
+    sort(snToString.begin(), snToString.end(),greater<char>());
+   
+    answer = stoll(snToString);
     return answer;
 }
 void main() {
-    vector<int> answer = solution(12345);
-
-    for (int i = 0; i < answer.size(); i++) {
-        cout << answer[i] << endl;
-    }
+    cout << solution(118372) << endl;
 }
 
 
 /*
-자연수 n을 뒤집어 각 자리 숫자를 원소로 가지는 배열 형태로 리턴해주세요. 예를들어 n이 12345이면 [5,4,3,2,1]을 리턴합니다.
+함수 solution은 정수 n을 매개변수로 입력받습니다. n의 각 자릿수를 큰것부터 작은 순으로 정렬한 새로운 정수를 리턴해주세요. 예를들어 n이 118372면 873211을 리턴하면 됩니다.
 
 제한 조건
-n은 10,000,000,000이하인 자연수입니다.
+n은 1이상 8000000000 이하인 자연수입니다.
 입출력 예
 n	return
-12345	[5,4,3,2,1]
+118372	873211
 
 
 
