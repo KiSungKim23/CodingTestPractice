@@ -7,50 +7,38 @@
 
 using namespace std; 
 
-string solution(string s) {
-    int iStringSiteTemp = 0;
-    int iCharTemp = 0;
-    string::iterator iterTemp = s.begin();
-    for (int i = 0; i < s.size(); i++) {
-        if (s[i] == ' ') iStringSiteTemp = 0;
-        else {
-            if (iStringSiteTemp % 2 == 0) {
-                if ('a' <= s[i] && 'z' >= s[i]) {
-                    iCharTemp = s[i] - 'a' + 'A';
-                    s[i] = iCharTemp;
-                }
-            }
-            else {
-                if ('A' <= s[i] && 'Z' >= s[i]) {
-                    iCharTemp = s[i] - 'A' + 'a';
-                    s[i] = iCharTemp;
-                }
-            }
-            iStringSiteTemp++;
-        }
+int solution(int n)
+{
+    string nToString = to_string(n);
+    int answer = 0;
+    
+    for (int i = 0; i < nToString.size(); i++) {
+        answer += (nToString[i] - '0');
     }
-    return s;
+    return answer;
 }
-
 void main() {
-    cout << solution("trAAAasdsady   hello world") << endl;
+    cout << solution(123) << endl;
 
 }
 
 
 /*
-문자열 s는 한 개 이상의 단어로 구성되어 있습니다. 
-각 단어는 하나 이상의 공백문자로 구분되어 있습니다. 각 단어의 짝수번째 알파벳은 대문자로, 홀수번째 알파벳은 소문자로 바꾼 문자열을 리턴하는 함수, solution을 완성하세요.
+자연수 N이 주어지면, N의 각 자릿수의 합을 구해서 return 하는 solution 함수를 만들어 주세요.
+예를들어 N = 123이면 1 + 2 + 3 = 6을 return 하면 됩니다.
 
-제한 사항
-문자열 전체의 짝/홀수 인덱스가 아니라, 단어(공백을 기준)별로 짝/홀수 인덱스를 판단해야합니다.
-첫 번째 글자는 0번째 인덱스로 보아 짝수번째 알파벳으로 처리해야 합니다.
+제한사항
+N의 범위 : 100,000,000 이하의 자연수
 입출력 예
-s	return
-"try hello world"	"TrY HeLlO WoRlD"
+N	answer
+123	6
+987	24
 입출력 예 설명
-"try hello world"는 세 단어 "try", "hello", "world"로 구성되어 있습니다.
-각 단어의 짝수번째 문자를 대문자로, 홀수번째 문자를 소문자로 바꾸면 "TrY", "HeLlO", "WoRlD"입니다. 따라서 "TrY HeLlO WoRlD" 를 리턴합니다.
+입출력 예 #1
+문제의 예시와 같습니다.
+
+입출력 예 #2
+9 + 8 + 7 = 24이므로 24를 return 하면 됩니다.
 
 
 
