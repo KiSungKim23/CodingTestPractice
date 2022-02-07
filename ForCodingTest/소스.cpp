@@ -7,52 +7,40 @@
 
 using namespace std; 
 
-string solution(string s, int n) {
-    int iTemp = 0;
-    for (int i = 0; i < s.size(); i++) {
-        if ('a' <= s[i] && 'z' >= s[i]) {
-            iTemp = s[i] + n;
-            if (iTemp > 'z')
-                s[i] = iTemp - 'z' + 'a' - 1;
-            else
-                s[i] = iTemp;
-        }
-        else if ('A' <= s[i] && 'Z' >= s[i]) {
-                iTemp = s[i] + n;
-                if (iTemp > 'Z')
-                    s[i] = iTemp - 'Z' + 'A' - 1;
-                else
-                    s[i] = iTemp;
-            }
+int solution(int n) {
+    int answer = 1 + n;
+
+    for (int i = n / 2; i > 1; i--) {
+        if (n % i == 0) answer += i;
     }
-    return s;
+
+    if (n == 0 || n == 1) answer = n;
+
+    return answer;
 }
 
 
 void main() {
-    for (int i = 0; i <= 25; i++) {
-        cout << i << " : " << solution("z", i) << endl;
-    }
+    cout << solution(5) << endl;
 
-
-    cout << 6 << " : " << solution("z", 6) << endl;
 }
 
 
 /*
-* 어떤 문장의 각 알파벳을 일정한 거리만큼 밀어서 다른 알파벳으로 바꾸는 암호화 방식을 시저 암호라고 합니다.
-예를 들어 "AB"는 1만큼 밀면 "BC"가 되고, 3만큼 밀면 "DE"가 됩니다. "z"는 1만큼 밀면 "a"가 됩니다. 문자열 s와 거리 n을 입력받아 s를 n만큼 민 암호문을 만드는 함수, solution을 완성해 보세요.
+정수 n을 입력받아 n의 약수를 모두 더한 값을 리턴하는 함수, solution을 완성해주세요.
 
-제한 조건
-공백은 아무리 밀어도 공백입니다.
-s는 알파벳 소문자, 대문자, 공백으로만 이루어져 있습니다.
-s의 길이는 8000이하입니다.
-n은 1 이상, 25이하인 자연수입니다.
+제한 사항
+n은 0 이상 3000이하인 정수입니다.
 입출력 예
-s	n	result
-"AB"	1	"BC"
-"z"	1	"a"
-"a B z"	4	"e F d"
+n	return
+12	28
+5	6
+입출력 예 설명
+입출력 예 #1
+12의 약수는 1, 2, 3, 4, 6, 12입니다. 이를 모두 더하면 28입니다.
+
+입출력 예 #2
+5의 약수는 1, 5입니다. 이를 모두 더하면 6입니다.
 
 
 
