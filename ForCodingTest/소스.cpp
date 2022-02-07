@@ -7,31 +7,55 @@
 
 using namespace std; 
 
-string solution(vector<string> seoul) {
-    string answer = "김서방은 ";
-    for (int i = 0; i < seoul.size(); i++) {
-        if (seoul[i] == "Kim") {
-            answer = answer + to_string(i);
-            answer = answer + "에 있다";
+int solution(int n) {
+    int answer = 0;
+
+    bool decimal = true;
+
+    if (n <= 3) return n - 1;
+    
+    for (int i = n; i > 1; i--) {
+        for (int j = 2; j*j <= i; j++) {
+            if (i % j == 0) {
+                decimal = false;
+                break;
+            }
         }
+        if (decimal == true) answer++;
+        else decimal = true;
     }
+
 
     return answer;
 }
-void main() {
-    vector<string> Seoul = { "Jane", "Kim" };
 
-    cout << solution(Seoul) << endl;
+
+void main() {
+    cout << solution(1000000) << endl;
+
 }
 
 /*
-String형 배열 seoul의 element중 "Kim"의 위치 x를 찾아, "김서방은 x에 있다"는 String을 반환하는 함수, solution을 완성하세요. seoul에 "Kim"은 오직 한 번만 나타나며 잘못된 값이 입력되는 경우는 없습니다.
+1부터 입력받은 숫자 n 사이에 있는 소수의 개수를 반환하는 함수, solution을 만들어 보세요.
 
-제한 사항
-seoul은 길이 1 이상, 1000 이하인 배열입니다.
-seoul의 원소는 길이 1 이상, 20 이하인 문자열입니다.
-"Kim"은 반드시 seoul 안에 포함되어 있습니다.
+소수는 1과 자기 자신으로만 나누어지는 수를 의미합니다.
+(1은 소수가 아닙니다.)
+
+제한 조건
+n은 2이상 1000000이하의 자연수입니다.
 입출력 예
-seoul	return
-["Jane", "Kim"]	"김서방은 1에 있다"
+n	result
+10	4
+5	3
+입출력 예 설명
+입출력 예 #1
+1부터 10 사이의 소수는 [2,3,5,7] 4개가 존재하므로 4를 반환
+
+입출력 예 #2
+1부터 5 사이의 소수는 [2,3,5] 3개가 존재하므로 3를 반환
+
+
+
+
+
 */
