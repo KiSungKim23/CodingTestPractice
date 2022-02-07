@@ -7,52 +7,30 @@
 
 using namespace std; 
 
-int solution(int n) {
-    int answer = 0;
+string solution(int n) {
+    string answer = "";
 
-    bool decimal = true;
-
-    if (n <= 3) return n - 1;
-    
-    for (int i = n; i > 1; i--) {
-        for (int j = 2; j*j <= i; j++) {
-            if (i % j == 0) {
-                decimal = false;
-                break;
-            }
-        }
-        if (decimal == true) answer++;
-        else decimal = true;
+    for (int i = 0; i < n; i++) {
+        i % 2 == 0 ? answer += "수" : answer += "박";
     }
-
-
     return answer;
 }
 
 
 void main() {
-    cout << solution(1000000) << endl;
+    cout << solution(6) << endl;
 
 }
 
 /*
-1부터 입력받은 숫자 n 사이에 있는 소수의 개수를 반환하는 함수, solution을 만들어 보세요.
-
-소수는 1과 자기 자신으로만 나누어지는 수를 의미합니다.
-(1은 소수가 아닙니다.)
+길이가 n이고, "수박수박수박수...."와 같은 패턴을 유지하는 문자열을 리턴하는 함수, solution을 완성하세요. 예를들어 n이 4이면 "수박수박"을 리턴하고 3이라면 "수박수"를 리턴하면 됩니다.
 
 제한 조건
-n은 2이상 1000000이하의 자연수입니다.
+n은 길이 10,000이하인 자연수입니다.
 입출력 예
-n	result
-10	4
-5	3
-입출력 예 설명
-입출력 예 #1
-1부터 10 사이의 소수는 [2,3,5,7] 4개가 존재하므로 4를 반환
-
-입출력 예 #2
-1부터 5 사이의 소수는 [2,3,5] 3개가 존재하므로 3를 반환
+n	return
+3	"수박수"
+4	"수박수박"
 
 
 
