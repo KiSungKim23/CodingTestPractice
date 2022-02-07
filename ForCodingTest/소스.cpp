@@ -7,38 +7,33 @@
 
 using namespace std; 
 
-int solution(int n)
-{
-    string nToString = to_string(n);
-    int answer = 0;
-    
-    for (int i = 0; i < nToString.size(); i++) {
-        answer += (nToString[i] - '0');
+vector<int> solution(long long n) {
+    vector<int> answer;
+    string snToString = to_string(n);
+
+    for (int i = snToString.size() - 1; i >= 0; i--) {
+        answer.push_back(snToString[i] - '0');
     }
+
     return answer;
 }
 void main() {
-    cout << solution(123) << endl;
+    vector<int> answer = solution(12345);
 
+    for (int i = 0; i < answer.size(); i++) {
+        cout << answer[i] << endl;
+    }
 }
 
 
 /*
-자연수 N이 주어지면, N의 각 자릿수의 합을 구해서 return 하는 solution 함수를 만들어 주세요.
-예를들어 N = 123이면 1 + 2 + 3 = 6을 return 하면 됩니다.
+자연수 n을 뒤집어 각 자리 숫자를 원소로 가지는 배열 형태로 리턴해주세요. 예를들어 n이 12345이면 [5,4,3,2,1]을 리턴합니다.
 
-제한사항
-N의 범위 : 100,000,000 이하의 자연수
+제한 조건
+n은 10,000,000,000이하인 자연수입니다.
 입출력 예
-N	answer
-123	6
-987	24
-입출력 예 설명
-입출력 예 #1
-문제의 예시와 같습니다.
-
-입출력 예 #2
-9 + 8 + 7 = 24이므로 24를 return 하면 됩니다.
+n	return
+12345	[5,4,3,2,1]
 
 
 
