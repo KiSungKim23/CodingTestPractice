@@ -7,41 +7,42 @@
 
 using namespace std; 
 
-long long solution(long long n) {
-    long long answer = -1;
+vector<int> solution(vector<int> arr) {
+    vector<int>::iterator iterTemp = arr.begin();
 
-    long long Count = 0;
-
-    while (Count * Count <= n)
-    {
-        if (Count * Count == n) answer = (Count + 1) * (Count + 1);
-        Count++;
+    for (auto iter = arr.begin(); iter != arr.end(); iter++) {
+        if (*iterTemp > *iter) iterTemp = iter;
     }
 
-    return answer;
+    iterTemp = arr.erase(iterTemp);
+
+    if (arr.size() == 0) arr.push_back(-1);
+
+    return arr;
 }
 
 void main() {
-    cout << solution(3) << endl;
+    vector<int> arr = { 4,3,2,1 };
+
+    vector<int> answer = solution(arr);
+
+    for (int i = 0; i < answer.size(); i++) {
+        cout << answer[i] << endl;
+    }
 }
 
 
 /*
-임의의 양의 정수 n에 대해, n이 어떤 양의 정수 x의 제곱인지 아닌지 판단하려 합니다.
-n이 양의 정수 x의 제곱이라면 x+1의 제곱을 리턴하고, n이 양의 정수 x의 제곱이 아니라면 -1을 리턴하는 함수를 완성하세요.
+정수를 저장한 배열, arr 에서 가장 작은 수를 제거한 배열을 리턴하는 함수, solution을 완성해주세요. 
+단, 리턴하려는 배열이 빈 배열인 경우엔 배열에 -1을 채워 리턴하세요. 예를들어 arr이 [4,3,2,1]인 경우는 [4,3,2]를 리턴 하고, [10]면 [-1]을 리턴 합니다.
 
-제한 사항
-n은 1이상, 50000000000000 이하인 양의 정수입니다.
+제한 조건
+arr은 길이 1 이상인 배열입니다.
+인덱스 i, j에 대해 i ≠ j이면 arr[i] ≠ arr[j] 입니다.
 입출력 예
-n	return
-121	144
-3	-1
-입출력 예 설명
-입출력 예#1
-121은 양의 정수 11의 제곱이므로, (11+1)를 제곱한 144를 리턴합니다.
-
-입출력 예#2
-3은 양의 정수의 제곱이 아니므로, -1을 리턴합니다.
+arr	return
+[4,3,2,1]	[4,3,2]
+[10]	[-1]
 
 
 
