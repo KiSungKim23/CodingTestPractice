@@ -9,152 +9,143 @@
 
 using namespace std; 
 
-struct UserInfo
-{
-    string UserName;
-    bool Inout;
+struct element {
+    int col;
+    int row;
 };
 
-
-vector<string> solution(vector<string> record) {
-    vector<string> answer;
-    string answerTemp;
-
-    map<string, string> UserName;
-    map<string, string>::iterator Useriter;
-
-    vector<UserInfo> RecordInfo;
-    UserInfo RecordInfoTemp;
-
-
-    for (int i = 0; i < record.size(); i++) {
-        stringstream Temp;
-        string InoutTemp;
-        string UserIDTemp;
-        string UserNickNameTemp;
-        Temp.str(record[i]);
-        Temp >> InoutTemp;
-        switch (InoutTemp[0]) {
-        case 'E':
-        case 'e':
-            Temp >> UserIDTemp;
-            Temp >> UserNickNameTemp; 
-            Useriter = UserName.find(UserIDTemp);
-            if (Useriter == UserName.end()) {
-                UserName.emplace(pair<string, string>(UserIDTemp, UserNickNameTemp));
-            }
-            else {
-                Useriter->second = UserNickNameTemp;
-            }
-            RecordInfoTemp.UserName = UserIDTemp;
-            RecordInfoTemp.Inout = true;
-            RecordInfo.push_back(RecordInfoTemp);
-            break;
-        case 'L':
-        case 'l':
-            Temp >> UserIDTemp;
-            RecordInfoTemp.UserName = UserIDTemp;
-            RecordInfoTemp.Inout = false;
-            RecordInfo.push_back(RecordInfoTemp);
-            break;
-        case 'C':;
-        case 'c':
-            Temp >> UserIDTemp;
-            Temp >> UserNickNameTemp; 
-            Useriter = UserName.find(UserIDTemp);
-            if (Useriter == UserName.end()) {
-                UserName.emplace(pair<string, string>(UserIDTemp, UserNickNameTemp));
-            }
-            else {
-                Useriter->second = UserNickNameTemp;
-            }
-            break;
+void printpictur(vector<vector<int>>* picture) {
+    for (int i = 0; i < picture->size(); i++) {
+        for (int j = 0; j < (*picture)[i].size(); j++) {
+            cout << " " << (*picture)[i][j];
         }
+        cout << endl;
     }
-
-    for (int i = 0; i < RecordInfo.size(); i++) {
-        if (RecordInfo[i].Inout) {
-            answer.push_back((UserName.find(RecordInfo[i].UserName))->second + "님이 들어왔습니다.");
-        }
-        else {
-            answer.push_back((UserName.find(RecordInfo[i].UserName))->second + "님이 님이 나갔습니다..");
-        }
-    }
-
-    return answer;
+    cout << endl;
 }
 
-int main(void) {
-    vector<string> q = { "Enter uid1234 Muzi", "Enter uid4567 Prodo","Leave uid1234","Enter uid1234 Prodo","Change uid4567 Ryan" };
 
-    vector<string> answer = solution(q);
+void AddArea(vector<vector<int>>* picture, map<int, vector<element>*>* parea, int type ,int key ,element node, int colMax, int rowMax) {
+    if (node.col >= colMax || node.row >= rowMax || node.col < 0 || node.row < 0) return;
+
+    if ((*picture)[node.col][node.row] != type) {
+        return;
+    }
+
+    element nodeTemp1{ node.col , node.row + 1 };
+    element nodeTemp2{ node.col + 1,node.row };
+    element nodeTemp3{ node.col - 1 , node.row };
+    element nodeTemp4{ node.col ,node.row  - 1};
+
+    AddArea(picture, parea, type, key, nodeTemp1, colMax, rowMax);
+    AddArea(picture, parea, type, key, nodeTemp2, colMax, rowMax);
+    if ((*picture)[node.col][node.row] == type) {
+        (*parea)[key]->push_back(node);
+        (*picture)[node.col][node.row] = 0;
+    }
+    AddArea(picture, parea, type, key, nodeTemp3, colMax, rowMax);
+    AddArea(picture, parea, type, key, nodeTemp4, colMax, rowMax);
+
+
+}
+
+
+vector<int> solution(int m, int n, vector<vector<int>> picture) {
+    int number_of_area = 0;
+    int max_size_of_one_area = 0;
+
+    element node;
+
+    map<int, vector<element>*> area;
+    vector<element>* pvecTemp = nullptr;
+
+    int key = 0;
+
+
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            if (picture[i][j] != 0) {
+                pvecTemp = new vector<element>;
+                area.emplace(pair<int, vector<element>*>(key, pvecTemp));
+                node.col = i;
+                node.row = j;
+                AddArea(&picture, &area, picture[i][j], key, node, m, n); 
+                printpictur(&picture);
+                key++;
+            }
+        }
+    }
+
+    vector<int> answer(2);
+    answer[0] = area.size();
+    answer[1] = 0;
+    for (auto iter = area.begin(); iter != area.end(); iter++) {
+        if (answer[1] < iter->second->size()) {
+            answer[1] = iter->second->size();
+        }
+        delete iter->second;
+    }
+    return answer;
+}
+ 
+int main(void) {
+    vector<vector<int>> picture = { 
+        {0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0} ,
+        {0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0} ,
+        {0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0} ,
+        {0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0} ,
+        {0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0} ,
+        {0,1,1,1,1,2,1,1,1,1,2,1,1,1,1,0} ,
+        {0,1,1,1,2,1,2,1,1,2,1,2,1,1,1,0} ,
+        {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0} ,
+        {0,1,3,3,3,1,1,1,1,1,1,3,3,3,1,0} ,
+        {0,1,1,1,1,1,2,1,1,2,1,1,1,1,1,0} ,
+        {0,0,1,1,1,1,1,2,2,1,1,1,1,1,0,0} ,
+        {0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0} ,
+        {0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0}
+    };
+    vector<int> answer = solution(13,16,picture);
+
+    cout << answer[0] << endl;
+    cout << answer[1] << endl;
     return 0;
 }
 
 
 /*
-카카오톡 오픈채팅방에서는 친구가 아닌 사람들과 대화를 할 수 있는데, 본래 닉네임이 아닌 가상의 닉네임을 사용하여 채팅방에 들어갈 수 있다.
+카카오 프렌즈 컬러링북
+출판사의 편집자인 어피치는 네오에게 컬러링북에 들어갈 원화를 그려달라고 부탁하여 여러 장의 그림을 받았다.
+여러 장의 그림을 난이도 순으로 컬러링북에 넣고 싶었던 어피치는 영역이 많으면 색칠하기가 까다로워 어려워진다는 사실을 발견하고 그림의 난이도를 영역의 수로 정의하였다.
+(영역이란 상하좌우로 연결된 같은 색상의 공간을 의미한다.)
 
-신입사원인 김크루는 카카오톡 오픈 채팅방을 개설한 사람을 위해, 다양한 사람들이 들어오고, 나가는 것을 지켜볼 수 있는 관리자창을 만들기로 했다. 채팅방에 누군가 들어오면 다음 메시지가 출력된다.
+그림에 몇 개의 영역이 있는지와 가장 큰 영역의 넓이는 얼마인지 계산하는 프로그램을 작성해보자.
 
-"[닉네임]님이 들어왔습니다."
+alt text
 
-채팅방에서 누군가 나가면 다음 메시지가 출력된다.
+위의 그림은 총 12개 영역으로 이루어져 있으며, 가장 넓은 영역은 어피치의 얼굴면으로 넓이는 120이다.
 
-"[닉네임]님이 나갔습니다."
+입력 형식
+입력은 그림의 크기를 나타내는 m과 n, 그리고 그림을 나타내는 m × n 크기의 2차원 배열 picture로 주어진다. 제한조건은 아래와 같다.
 
-채팅방에서 닉네임을 변경하는 방법은 다음과 같이 두 가지이다.
+1 <= m, n <= 100
+picture의 원소는 0 이상 2^31 - 1 이하의 임의의 값이다.
+picture의 원소 중 값이 0인 경우는 색칠하지 않는 영역을 뜻한다.
+출력 형식
+리턴 타입은 원소가 두 개인 정수 배열이다. 그림에 몇 개의 영역이 있는지와 가장 큰 영역은 몇 칸으로 이루어져 있는지를 리턴한다.
 
-채팅방을 나간 후, 새로운 닉네임으로 다시 들어간다.
-채팅방에서 닉네임을 변경한다.
-닉네임을 변경할 때는 기존에 채팅방에 출력되어 있던 메시지의 닉네임도 전부 변경된다.
-
-예를 들어, 채팅방에 "Muzi"와 "Prodo"라는 닉네임을 사용하는 사람이 순서대로 들어오면 채팅방에는 다음과 같이 메시지가 출력된다.
-
-"Muzi님이 들어왔습니다."
-"Prodo님이 들어왔습니다."
-
-채팅방에 있던 사람이 나가면 채팅방에는 다음과 같이 메시지가 남는다.
-
-"Muzi님이 들어왔습니다."
-"Prodo님이 들어왔습니다."
-"Muzi님이 나갔습니다."
-
-Muzi가 나간후 다시 들어올 때, Prodo 라는 닉네임으로 들어올 경우 기존에 채팅방에 남아있던 Muzi도 Prodo로 다음과 같이 변경된다.
-
-"Prodo님이 들어왔습니다."
-"Prodo님이 들어왔습니다."
-"Prodo님이 나갔습니다."
-"Prodo님이 들어왔습니다."
-
-채팅방은 중복 닉네임을 허용하기 때문에, 현재 채팅방에는 Prodo라는 닉네임을 사용하는 사람이 두 명이 있다. 이제, 채팅방에 두 번째로 들어왔던 Prodo가 Ryan으로 닉네임을 변경하면 채팅방 메시지는 다음과 같이 변경된다.
-
-"Prodo님이 들어왔습니다."
-"Ryan님이 들어왔습니다."
-"Prodo님이 나갔습니다."
-"Prodo님이 들어왔습니다."
-
-채팅방에 들어오고 나가거나, 닉네임을 변경한 기록이 담긴 문자열 배열 record가 매개변수로 주어질 때, 모든 기록이 처리된 후, 최종적으로 방을 개설한 사람이 보게 되는 메시지를 문자열 배열 형태로 return 하도록 solution 함수를 완성하라.
-
-제한사항
-record는 다음과 같은 문자열이 담긴 배열이며, 길이는 1 이상 100,000 이하이다.
-다음은 record에 담긴 문자열에 대한 설명이다.
-모든 유저는 [유저 아이디]로 구분한다.
-[유저 아이디] 사용자가 [닉네임]으로 채팅방에 입장 - "Enter [유저 아이디] [닉네임]" (ex. "Enter uid1234 Muzi")
-[유저 아이디] 사용자가 채팅방에서 퇴장 - "Leave [유저 아이디]" (ex. "Leave uid1234")
-[유저 아이디] 사용자가 닉네임을 [닉네임]으로 변경 - "Change [유저 아이디] [닉네임]" (ex. "Change uid1234 Muzi")
-첫 단어는 Enter, Leave, Change 중 하나이다.
-각 단어는 공백으로 구분되어 있으며, 알파벳 대문자, 소문자, 숫자로만 이루어져있다.
-유저 아이디와 닉네임은 알파벳 대문자, 소문자를 구별한다.
-유저 아이디와 닉네임의 길이는 1 이상 10 이하이다.
-채팅방에서 나간 유저가 닉네임을 변경하는 등 잘못 된 입력은 주어지지 않는다.
-입출력 예
-record	result
-["Enter uid1234 Muzi", "Enter uid4567 Prodo","Leave uid1234","Enter uid1234 Prodo","Change uid4567 Ryan"]	
-["Prodo님이 들어왔습니다.", "Ryan님이 들어왔습니다.", "Prodo님이 나갔습니다.", "Prodo님이 들어왔습니다."]
-입출력 예 설명
-입출력 예 #1
-문제의 설명과 같다.
+예제 입출력
+m	n	picture	answer
+6	4	
+[
+[1, 1, 1, 0], 
+[1, 2, 2, 1], 
+[1, 0, 0, 1], 
+[0, 0, 0, 1], 
+[0, 0, 0, 3], 
+[0, 0, 0, 3]]	[4, 5]
+예제에 대한 설명
+예제로 주어진 그림은 총 4개의 영역으로 구성되어 있으며, 왼쪽 위의 영역과 오른쪽의 영역은 모두 1로 구성되어 있지만 상하좌우로 이어져있지 않으므로 다른 영역이다. 
+가장 넓은 영역은 왼쪽 위 1이 차지하는 영역으로 총 5칸이다.
 
 
 
