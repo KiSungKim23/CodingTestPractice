@@ -8,146 +8,133 @@
 
 
 using namespace std; 
-
-struct element {
-    int col;
-    int row;
-};
-
-void printpictur(vector<vector<int>>* picture) {
-    for (int i = 0; i < picture->size(); i++) {
-        for (int j = 0; j < (*picture)[i].size(); j++) {
-            cout << " " << (*picture)[i][j];
-        }
-        cout << endl;
-    }
-    cout << endl;
-}
-
-
-void AddArea(vector<vector<int>>* picture, map<int, vector<element>*>* parea, int type ,int key ,element node, int colMax, int rowMax) {
-    if (node.col >= colMax || node.row >= rowMax || node.col < 0 || node.row < 0) return;
-
-    if ((*picture)[node.col][node.row] != type) {
-        return;
-    }
-
-    element nodeTemp1{ node.col , node.row + 1 };
-    element nodeTemp2{ node.col + 1,node.row };
-    element nodeTemp3{ node.col - 1 , node.row };
-    element nodeTemp4{ node.col ,node.row  - 1};
-
-    AddArea(picture, parea, type, key, nodeTemp1, colMax, rowMax);
-    AddArea(picture, parea, type, key, nodeTemp2, colMax, rowMax);
-    if ((*picture)[node.col][node.row] == type) {
-        (*parea)[key]->push_back(node);
-        (*picture)[node.col][node.row] = 0;
-    }
-    AddArea(picture, parea, type, key, nodeTemp3, colMax, rowMax);
-    AddArea(picture, parea, type, key, nodeTemp4, colMax, rowMax);
-
+void init(map<char, int>* charictor, int a, int c, int f, int j, int m, int n, int r, int t) {
+    (*charictor)['A'] = a;
+    (*charictor)['C'] = c;
+    (*charictor)['F'] = f;
+    (*charictor)['J'] = j;
+    (*charictor)['M'] = m;
+    (*charictor)['N'] = n;
+    (*charictor)['R'] = r;
+    (*charictor)['T'] = t;
 
 }
 
 
-vector<int> solution(int m, int n, vector<vector<int>> picture) {
-    int number_of_area = 0;
-    int max_size_of_one_area = 0;
+int solution(int N, vector<string> data) {
+    int answer = 0;
+    
+    map<char, int> charictor = { {'A',0}, {'C',0}, {'F',0}, {'J',0}, {'M',0}, {'N',0}, {'R',0}, {'T',0} };
 
-    element node;
+    bool* bTemp = new bool[data.size()];
 
-    map<int, vector<element>*> area;
-    vector<element>* pvecTemp = nullptr;
+    bool add = true;
 
-    int key = 0;
-
-
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            if (picture[i][j] != 0) {
-                pvecTemp = new vector<element>;
-                area.emplace(pair<int, vector<element>*>(key, pvecTemp));
-                node.col = i;
-                node.row = j;
-                AddArea(&picture, &area, picture[i][j], key, node, m, n); 
-                printpictur(&picture);
-                key++;
+    for (int a = 0; a < 8; a++) {
+        for (int c = 0; c < 8; c++) {
+            if (a == c) continue;
+            for (int f = 0; f < 8; f++) {
+                if (a == f || c == f) continue;
+                for (int j = 0; j < 8; j++) {
+                    if (a == j || c == j || f == j) continue;
+                    for (int m = 0; m < 8; m++) {
+                        if (a == m || c == m || f == m|| j == m) continue;
+                        for (int n = 0; n < 8; n++) {
+                            if (a == n || c == n || f == n || j == n || m == n) continue; 
+                            for (int r = 0; r < 8; r++) {
+                                if (a == r || c == r || f == r || j == r || m == r || n == r) continue;
+                                for (int t = 0; t < 8; t++) {
+                                    if (a == t || c == t || f == t || j == t || m == t || n == t || r == t) continue;
+                                    init(&charictor, a, c, f, j, m, n, r, t);
+                                    for (int i = 0; i < N; i++) {
+                                        switch (data[i][3]) {
+                                        case '=':
+                                            if ((charictor[data[i][0]] - charictor[data[i][2]] == data[i][4] - '0' + 1) || (charictor[data[i][0]] - charictor[data[i][2]] == '0' - data[i][4] - 1))
+                                                bTemp[i] = true;
+                                            else
+                                                bTemp[i] = false;
+                                            break;
+                                        case '<':
+                                            if (((charictor[data[i][0]] - charictor[data[i][2]] < data[i][4] - '0' + 1))
+                                                && ((charictor[data[i][0]] - charictor[data[i][2]] > '0' - data[i][4] - 1)))
+                                                bTemp[i] = true;
+                                            else
+                                                bTemp[i] = false;
+                                            break;
+                                        case '>':
+                                            if (((charictor[data[i][0]] - charictor[data[i][2]] > data[i][4] - '0' + 1))
+                                                || ((charictor[data[i][0]] - charictor[data[i][2]] < '0' - data[i][4] - 1)))
+                                                bTemp[i] = true;
+                                            else
+                                                bTemp[i] = false;
+                                            break;
+                                        }
+                                    }
+                                    for (int count = 0; count < data.size(); count++) {
+                                        if (!bTemp[count]) {
+                                            add = false;
+                                        }
+                                    }
+                                    if (add) {
+                                        answer++;
+                                    }
+                                    else {
+                                        add = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 
-    vector<int> answer(2);
-    answer[0] = area.size();
-    answer[1] = 0;
-    for (auto iter = area.begin(); iter != area.end(); iter++) {
-        if (answer[1] < iter->second->size()) {
-            answer[1] = iter->second->size();
-        }
-        delete iter->second;
-    }
     return answer;
 }
- 
-int main(void) {
-    vector<vector<int>> picture = { 
-        {0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0} ,
-        {0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0} ,
-        {0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0} ,
-        {0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0} ,
-        {0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0} ,
-        {0,1,1,1,1,2,1,1,1,1,2,1,1,1,1,0} ,
-        {0,1,1,1,2,1,2,1,1,2,1,2,1,1,1,0} ,
-        {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0} ,
-        {0,1,3,3,3,1,1,1,1,1,1,3,3,3,1,0} ,
-        {0,1,1,1,1,1,2,1,1,2,1,1,1,1,1,0} ,
-        {0,0,1,1,1,1,1,2,2,1,1,1,1,1,0,0} ,
-        {0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0} ,
-        {0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0}
-    };
-    vector<int> answer = solution(13,16,picture);
 
-    cout << answer[0] << endl;
-    cout << answer[1] << endl;
+// {A, C, F, J, M, N, R, T}
+
+int main(void) {
+    vector<string> data = { "M~C<2", "C~M>1" };
+
+    cout << solution(2, data);
     return 0;
 }
 
 
 /*
-카카오 프렌즈 컬러링북
-출판사의 편집자인 어피치는 네오에게 컬러링북에 들어갈 원화를 그려달라고 부탁하여 여러 장의 그림을 받았다.
-여러 장의 그림을 난이도 순으로 컬러링북에 넣고 싶었던 어피치는 영역이 많으면 색칠하기가 까다로워 어려워진다는 사실을 발견하고 그림의 난이도를 영역의 수로 정의하였다.
-(영역이란 상하좌우로 연결된 같은 색상의 공간을 의미한다.)
+문제 설명
+단체사진 찍기
+picture
 
-그림에 몇 개의 영역이 있는지와 가장 큰 영역의 넓이는 얼마인지 계산하는 프로그램을 작성해보자.
-
-alt text
-
-위의 그림은 총 12개 영역으로 이루어져 있으며, 가장 넓은 영역은 어피치의 얼굴면으로 넓이는 120이다.
+가을을 맞아 카카오프렌즈는 단체로 소풍을 떠났다. 즐거운 시간을 보내고 마지막에 단체사진을 찍기 위해 카메라 앞에 일렬로 나란히 섰다.
+그런데 각자가 원하는 배치가 모두 달라 어떤 순서로 설지 정하는데 시간이 오래 걸렸다. 
+네오는 프로도와 나란히 서기를 원했고, 튜브가 뿜은 불을 맞은 적이 있던 라이언은 튜브에게서 적어도 세 칸 이상 떨어져서 서기를 원했다. 
+사진을 찍고 나서 돌아오는 길에, 무지는 모두가 원하는 조건을 만족하면서도 다르게 서는 방법이 있지 않았을까 생각해보게 되었다.
+각 프렌즈가 원하는 조건을 입력으로 받았을 때 모든 조건을 만족할 수 있도록 서는 경우의 수를 계산하는 프로그램을 작성해보자.
 
 입력 형식
-입력은 그림의 크기를 나타내는 m과 n, 그리고 그림을 나타내는 m × n 크기의 2차원 배열 picture로 주어진다. 제한조건은 아래와 같다.
+입력은 조건의 개수를 나타내는 정수 n과 n개의 원소로 구성된 문자열 배열 data로 주어진다. data의 원소는 각 프렌즈가 원하는 조건이 N~F=0과 같은 형태의 문자열로 구성되어 있다. 제한조건은 아래와 같다.
 
-1 <= m, n <= 100
-picture의 원소는 0 이상 2^31 - 1 이하의 임의의 값이다.
-picture의 원소 중 값이 0인 경우는 색칠하지 않는 영역을 뜻한다.
+1 <= n <= 100
+data의 원소는 다섯 글자로 구성된 문자열이다. 각 원소의 조건은 다음과 같다.
+첫 번째 글자와 세 번째 글자는 다음 8개 중 하나이다. {A, C, F, J, M, N, R, T} 각각 어피치, 콘, 프로도, 제이지, 무지, 네오, 라이언, 튜브를 의미한다. 
+첫 번째 글자는 조건을 제시한 프렌즈, 세 번째 글자는 상대방이다. 첫 번째 글자와 세 번째 글자는 항상 다르다.
+두 번째 글자는 항상 ~이다.
+네 번째 글자는 다음 3개 중 하나이다. {=, <, >} 각각 같음, 미만, 초과를 의미한다.
+다섯 번째 글자는 0 이상 6 이하의 정수의 문자형이며, 조건에 제시되는 간격을 의미한다. 이때 간격은 두 프렌즈 사이에 있는 다른 프렌즈의 수이다.
 출력 형식
-리턴 타입은 원소가 두 개인 정수 배열이다. 그림에 몇 개의 영역이 있는지와 가장 큰 영역은 몇 칸으로 이루어져 있는지를 리턴한다.
+모든 조건을 만족하는 경우의 수를 리턴한다.
 
 예제 입출력
-m	n	picture	answer
-6	4	
-[
-[1, 1, 1, 0], 
-[1, 2, 2, 1], 
-[1, 0, 0, 1], 
-[0, 0, 0, 1], 
-[0, 0, 0, 3], 
-[0, 0, 0, 3]]	[4, 5]
+n	data	answer
+2	["N~F=0", "R~T>2"]	3648
+2	["M~C<2", "C~M>1"]	0
 예제에 대한 설명
-예제로 주어진 그림은 총 4개의 영역으로 구성되어 있으며, 왼쪽 위의 영역과 오른쪽의 영역은 모두 1로 구성되어 있지만 상하좌우로 이어져있지 않으므로 다른 영역이다. 
-가장 넓은 영역은 왼쪽 위 1이 차지하는 영역으로 총 5칸이다.
+첫 번째 예제는 문제에 설명된 바와 같이, 네오는 프로도와의 간격이 0이기를 원하고 라이언은 튜브와의 간격이 2보다 크기를 원하는 상황이다.
 
-
+두 번째 예제는 무지가 콘과의 간격이 2보다 작기를 원하고, 반대로 콘은 무지와의 간격이 1보다 크기를 원하는 상황이다. 이는 동시에 만족할 수 없는 조건이므로 경우의 수는 0이다.
 
 
 
