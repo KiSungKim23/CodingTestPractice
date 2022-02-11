@@ -8,46 +8,79 @@
 
 
 using namespace std; 
-long long solution(int w, int h) {
-    long long answer = 0;
-    long long cantUsed = 0;
 
-    int Temp1 = 0;
-    int Temp2 = 0;
+void Translation_123Word(vector<int>* Array,int index) {
+    if ((*Array)[index] <= 0) {
+        (*Array)[index] += 3;
+        (*Array)[index + 1] -= 1;
+        if (index + 1 < Array->size() - 1) {
+            Translation_123Word(Array, index + 1);
+        }
+    }
+}
 
-    for (int x = 0; x < w; x++) {
-        Temp1 = ((h * w - h * x) % w == 0) ? (int)((h * w - h * x) / w) : (ceil((long double)((h * w - h * x) / w) + 1));
-        Temp2 = (int)trunc((long double)((h * w - h * (x + 1)) / w));
-        cantUsed += Temp1 - Temp2;
+string solution(int n) {
+    string answer = "";
+    vector<int> vecThreeNotation;
+
+    while (n > 2) {
+        vecThreeNotation.push_back(n % 3);
+        n /= 3;
+    }
+    vecThreeNotation.push_back(n);
+
+    for (int i = vecThreeNotation.size() - 1; i >= 0; i--) {
+        Translation_123Word(&vecThreeNotation, i);
     }
 
-    answer = h * w - cantUsed;
+    for (int i = vecThreeNotation.size() - 1; i >= 0; i--) {
+        switch (vecThreeNotation[i])
+        {
+        case 1:
+            answer.push_back('1');
+            break;
+        case 2:
+            answer.push_back('2');
+            break;
+        case 3:
+            answer.push_back('4');
+            break;
+        }
+    }
+
     return answer;
 }
 
 int main(void) {
-    cout << solution(12, 8);
+    cout << solution(10);
     return 0;
 }
 
 
 /*
-가로 길이가 Wcm, 세로 길이가 Hcm인 직사각형 종이가 있습니다. 
-종이에는 가로, 세로 방향과 평행하게 격자 형태로 선이 그어져 있으며, 모든 격자칸은 1cm x 1cm 크기입니다.
-이 종이를 격자 선을 따라 1cm × 1cm의 정사각형으로 잘라 사용할 예정이었는데, 누군가가 이 종이를 대각선 꼭지점 2개를 잇는 방향으로 잘라 놓았습니다.
-그러므로 현재 직사각형 종이는 크기가 같은 직각삼각형 2개로 나누어진 상태입니다. 
-새로운 종이를 구할 수 없는 상태이기 때문에, 이 종이에서 원래 종이의 가로, 세로 방향과 평행하게 1cm × 1cm로 잘라 사용할 수 있는 만큼만 사용하기로 하였습니다.
-가로의 길이 W와 세로의 길이 H가 주어질 때, 사용할 수 있는 정사각형의 개수를 구하는 solution 함수를 완성해 주세요.
+124 나라가 있습니다. 124 나라에서는 10진법이 아닌 다음과 같은 자신들만의 규칙으로 수를 표현합니다.
+
+124 나라에는 자연수만 존재합니다.
+124 나라에는 모든 수를 표현할 때 1, 2, 4만 사용합니다.
+예를 들어서 124 나라에서 사용하는 숫자는 다음과 같이 변환됩니다.
+
+10진법	124 나라	10진법	124 나라
+1	1	6	14
+2	2	7	21
+3	4	8	22
+4	11	9	24
+5	12	10	41
+
+자연수 n이 매개변수로 주어질 때, n을 124 나라에서 사용하는 숫자로 바꾼 값을 return 하도록 solution 함수를 완성해 주세요.
 
 제한사항
-W, H : 1억 이하의 자연수
+n은 500,000,000이하의 자연수 입니다.
 입출력 예
-W	H	result
-8	12	80
-입출력 예 설명
-입출력 예 #1
-가로가 8, 세로가 12인 직사각형을 대각선 방향으로 자르면 총 16개 정사각형을 사용할 수 없게 됩니다. 원래 직사각형에서는 96개의 정사각형을 만들 수 있었으므로, 96 - 16 = 80 을 반환합니다.
-
+n	result
+1	1
+2	2
+3	4
+4	11
 
 
 
