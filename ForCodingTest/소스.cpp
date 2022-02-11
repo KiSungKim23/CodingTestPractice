@@ -24,44 +24,6 @@ int solution(vector<int> scoville, int K) {
     }
 
     return answer;
-    list<int> listScoville;
-    list<int>::iterator listIterFirst;
-    list<int>::iterator listIterSecond;
-
-    bool max = false;
-
-    sort(scoville.begin(), scoville.end());
-
-        for (int i = 0; i < scoville.size(); i++) {
-        if (scoville[i] >= K) {
-            max = true;
-            break;
-        }
-        else {
-            listScoville.push_back(scoville[i]);
-        }
-    }
-
-    while (listScoville.size() > 1)
-    {
-        listIterFirst = listScoville.begin();
-        listIterSecond = listScoville.end();
-        listIterSecond--;
-        
-        *listIterSecond = *listIterFirst + *listIterSecond * 2;
-        listScoville.erase(listIterFirst);
-
-        answer1++;
-        if (*listIterSecond >= K) {
-            listScoville.erase(listIterSecond);
-            max = true;
-        }
-    }
-    if (listScoville.size() != 0 && max) {
-        answer1++;
-    }
-
-    answer1 = max ? answer1 : -1;
 }
 
 
