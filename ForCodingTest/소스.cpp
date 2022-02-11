@@ -3,80 +3,129 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <sstream>
+#include <list>
 #include<algorithm>
+#include <queue>
 
 
 using namespace std; 
 
-vector<int> solution(vector<int> progresses, vector<int> speeds) {
-    vector<int> answer;
+int solution(vector<int> scoville, int K) {
+    int answer1 = 0;
+    int answer = 0;
+    int needHot;
+    priority_queue<int, vector<int>, greater<int>> pq(scoville.begin(), scoville.end());
 
-    int index = 0;
-    int DeploymentCount = 0;
-
-    while (index < progresses.size()) {
-        while (progresses[index] < 100)
-        {
-            for (int i = index; i < progresses.size(); i++) {
-                progresses[i] += speeds[i];
-            }
-        }
-
-        while (index < progresses.size() && progresses[index] >= 100) {
-            index++;
-            DeploymentCount++;
-        }
-
-        answer.push_back(DeploymentCount);
-        DeploymentCount = 0;
+    while (pq.top() < K) {
+        if (pq.size() == 1) return answer = -1;
+        needHot = pq.top(); pq.pop();
+        pq.push(needHot + pq.top() * 2);
+        pq.pop(); answer++;
     }
 
+    return answer;
+    list<int> listScoville;
+    list<int>::iterator listIterFirst;
+    list<int>::iterator listIterSecond;
+
+    bool max = false;
+
+    sort(scoville.begin(), scoville.end());
+
+        for (int i = 0; i < scoville.size(); i++) {
+        if (scoville[i] >= K) {
+            max = true;
+            break;
+        }
+        else {
+            listScoville.push_back(scoville[i]);
+        }
+    }
+
+    while (listScoville.size() > 1)
+    {
+        listIterFirst = listScoville.begin();
+        listIterSecond = listScoville.end();
+        listIterSecond--;
+        
+        *listIterSecond = *listIterFirst + *listIterSecond * 2;
+        listScoville.erase(listIterFirst);
+
+        answer1++;
+        if (*listIterSecond >= K) {
+            listScoville.erase(listIterSecond);
+            max = true;
+        }
+    }
+    if (listScoville.size() != 0 && max) {
+        answer1++;
+    }
+
+    answer1 = max ? answer1 : -1;
+}
+
+
+
+
+int solution(vector<int> scoville, int K) {
+    int answer = 0;
+    int needHot;
+    priority_queue<int, vector<int>, greater<int>> pq(scoville.begin(), scoville.end());
+
+    while (pq.top() < K) {
+        if (pq.size() == 1) return answer = -1;
+        needHot = pq.top(); pq.pop();
+        pq.push(needHot + pq.top() * 2);
+        pq.pop(); answer++;
+    }
 
     return answer;
 }
-int main(void) {
-    vector<int> progresses = { 95, 90, 99, 99, 80, 99 };
-    vector<int> speeds = { 1, 1, 1, 1, 1, 1 };
 
-    solution(progresses, speeds);
+
+
+int main(void) {
+    vector<int> progresses = { 1, 2,3,15};
+
+    cout << solution(progresses, 15);
     return 0;
 }
 
 
 /*
-프로그래머스 팀에서는 기능 개선 작업을 수행 중입니다. 각 기능은 진도가 100%일 때 서비스에 반영할 수 있습니다.
+매운 것을 좋아하는 Leo는 모든 음식의 스코빌 지수를 K 이상으로 만들고 싶습니다. 
+모든 음식의 스코빌 지수를 K 이상으로 만들기 위해 Leo는 스코빌 지수가 가장 낮은 두 개의 음식을 아래와 같이 특별한 방법으로 섞어 새로운 음식을 만듭니다.
 
-또, 각 기능의 개발속도는 모두 다르기 때문에 뒤에 있는 기능이 앞에 있는 기능보다 먼저 개발될 수 있고, 이때 뒤에 있는 기능은 앞에 있는 기능이 배포될 때 함께 배포됩니다.
-
-먼저 배포되어야 하는 순서대로 작업의 진도가 적힌 정수 배열 progresses와 각 작업의 개발 속도가 적힌 정수 배열 speeds가 주어질 때 
-각 배포마다 몇 개의 기능이 배포되는지를 return 하도록 solution 함수를 완성하세요.
+섞은 음식의 스코빌 지수 = 가장 맵지 않은 음식의 스코빌 지수 + (두 번째로 맵지 않은 음식의 스코빌 지수 * 2)
+Leo는 모든 음식의 스코빌 지수가 K 이상이 될 때까지 반복하여 섞습니다.
+Leo가 가진 음식의 스코빌 지수를 담은 배열 scoville과 원하는 스코빌 지수 K가 주어질 때, 
+모든 음식의 스코빌 지수를 K 이상으로 만들기 위해 섞어야 하는 최소 횟수를 return 하도록 solution 함수를 작성해주세요.
 
 제한 사항
-작업의 개수(progresses, speeds배열의 길이)는 100개 이하입니다.
-작업 진도는 100 미만의 자연수입니다.
-작업 속도는 100 이하의 자연수입니다.
-배포는 하루에 한 번만 할 수 있으며, 하루의 끝에 이루어진다고 가정합니다. 예를 들어 진도율이 95%인 작업의 개발 속도가 하루에 4%라면 배포는 2일 뒤에 이루어집니다.
+scoville의 길이는 2 이상 1,000,000 이하입니다.
+K는 0 이상 1,000,000,000 이하입니다.
+scoville의 원소는 각각 0 이상 1,000,000 이하입니다.
+모든 음식의 스코빌 지수를 K 이상으로 만들 수 없는 경우에는 -1을 return 합니다.
 입출력 예
-progresses	speeds	return
-[93, 30, 55]	[1, 30, 5]	[2, 1]
-[95, 90, 99, 99, 80, 99]	[1, 1, 1, 1, 1, 1]	[1, 3, 2]
+scoville	K	return
+[1, 2, 3, 9, 10, 12]	7	2
 입출력 예 설명
-입출력 예 #1
-첫 번째 기능은 93% 완료되어 있고 하루에 1%씩 작업이 가능하므로 7일간 작업 후 배포가 가능합니다.
-두 번째 기능은 30%가 완료되어 있고 하루에 30%씩 작업이 가능하므로 3일간 작업 후 배포가 가능합니다. 하지만 이전 첫 번째 기능이 아직 완성된 상태가 아니기 때문에 첫 번째 기능이 배포되는 7일째 배포됩니다.
-세 번째 기능은 55%가 완료되어 있고 하루에 5%씩 작업이 가능하므로 9일간 작업 후 배포가 가능합니다.
+스코빌 지수가 1인 음식과 2인 음식을 섞으면 음식의 스코빌 지수가 아래와 같이 됩니다.
+새로운 음식의 스코빌 지수 = 1 + (2 * 2) = 5
+가진 음식의 스코빌 지수 = [5, 3, 9, 10, 12]
 
-따라서 7일째에 2개의 기능, 9일째에 1개의 기능이 배포됩니다.
+스코빌 지수가 3인 음식과 5인 음식을 섞으면 음식의 스코빌 지수가 아래와 같이 됩니다.
+새로운 음식의 스코빌 지수 = 3 + (5 * 2) = 13
+가진 음식의 스코빌 지수 = [13, 9, 10, 12]
 
-입출력 예 #2
-모든 기능이 하루에 1%씩 작업이 가능하므로, 작업이 끝나기까지 남은 일수는 각각 5일, 10일, 1일, 1일, 20일, 1일입니다. 어떤 기능이 먼저 완성되었더라도 앞에 있는 모든 기능이 완성되지 않으면 배포가 불가능합니다.
-
-따라서 5일째에 1개의 기능, 10일째에 3개의 기능, 20일째에 2개의 기능이 배포됩니다.
-
-※ 공지 - 2020년 7월 14일 테스트케이스가 추가되었습니다.
+모든 음식의 스코빌 지수가 7 이상이 되었고 이때 섞은 횟수는 2회입니다.
 
 
 
 
 */
+
+
+
+
+
