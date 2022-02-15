@@ -10,126 +10,138 @@
 
 using namespace std; 
 
-
-int solution(string s)
-{
-    int index = 0;
-    string::iterator siter = s.begin();
-
-    while(siter != --(s.end())){
-        if (!((*siter) ^ *(++siter))) {
-            siter = s.erase(siter);
-            siter = s.erase(--siter);
-            if (siter != s.begin()) {
-                siter--;
+void printTable(vector<vector<int>>* Table) {
+    for (int i = 0; i < Table->size(); i++) {
+        cout << i + 1 << "행 :";
+        for (int j = 0; j < (*Table)[i].size(); j++) {
+            if ((*Table)[i][j] < 10) {
+                cout << " " << (*Table)[i][j] << " ";
+            }
+            else {
+                cout << (*Table)[i][j] << " ";
             }
         }
+        cout << endl;
+    }
+    cout << endl;
+}
 
-        if (s.size() < 1) {
-            break;
+int turn(vector<vector<int>>* Table,int ay,int ax, int by, int bx) {
+
+    int iTemp1 = (*Table)[ay][ax - 1];
+    int iTemp2 = 0;
+    int ireturn = iTemp1;
+
+    for (int i = ax - 1; i < bx; i++) {
+        iTemp2 = iTemp1;
+        iTemp1 = (*Table)[ay - 1][i];
+        if (iTemp1 < ireturn) {
+            ireturn = iTemp1;
         }
+        (*Table)[ay - 1][i] = iTemp2;
+    }
+    for (int i = ay; i < by; i++) {
+        iTemp2 = iTemp1;
+        iTemp1 = (*Table)[i][bx - 1];
+        if (iTemp1 < ireturn) {
+            ireturn = iTemp1; 
+        }
+        (*Table)[i][bx - 1] = iTemp2;
+    }
+    for (int i = bx - 2; i >= ax - 1; i--) {
+        iTemp2 = iTemp1;
+        iTemp1 = (*Table)[by - 1][i];
+        if (iTemp1 < ireturn) {
+            ireturn = iTemp1;
+        }
+        (*Table)[by - 1][i] = iTemp2;
+    }
+    for (int i = by - 2; i >= ay - 1; i--) {
+        iTemp2 = iTemp1;
+        iTemp1 = (*Table)[i][ax - 1];
+        if (iTemp1 < ireturn) {
+            ireturn = iTemp1;
+        }
+        (*Table)[i][ax - 1] = iTemp2;
     }
 
-    return s.size() == 0 ? 1 : 0;
+    return ireturn;
+}
+
+vector<int> solution(int rows, int columns, vector<vector<int>> queries) {
+    vector<int> answer;
+    vector<vector<int>> Table;
+    vector<int> TableTemp;
+
+    Table.clear();
+    for (int i = 0; i < rows; i++) {
+        TableTemp.clear();
+        TableTemp.reserve(columns * sizeof(int));
+        for (int j = 0; j < columns; j++) {
+            TableTemp.push_back(i * columns + (j + 1));
+        }
+        Table.push_back(TableTemp);
+    }
+
+    for (int i = 0; i < queries.size(); i++) {
+        answer.push_back(turn(&Table, queries[i][0], queries[i][1], queries[i][2], queries[i][3]));
+    }
+
+    return answer;
 }
 
 int main(void) {
-
-    cout << solution("baabaa");
+    solution(6, 6, { {2,2,5,4},{3,3,6,6},{5,1,6,3 } });
     return 0;
 }
 
 
 /*
-짝지어 제거하기는, 알파벳 소문자로 이루어진 문자열을 가지고 시작합니다.
-먼저 문자열에서 같은 알파벳이 2개 붙어 있는 짝을 찾습니다.
-그다음, 그 둘을 제거한 뒤, 앞뒤로 문자열을 이어 붙입니다. 이 과정을 반복해서 문자열을 모두 제거한다면 짝지어 제거하기가 종료됩니다. 
-문자열 S가 주어졌을 때, 짝지어 제거하기를 성공적으로 수행할 수 있는지 반환하는 함수를 완성해 주세요. 성공적으로 수행할 수 있으면 1을, 아닐 경우 0을 리턴해주면 됩니다.
+rows x columns 크기인 행렬이 있습니다. 
+행렬에는 1부터 rows x columns까지의 숫자가 한 줄씩 순서대로 적혀있습니다. 
+이 행렬에서 직사각형 모양의 범위를 여러 번 선택해, 테두리 부분에 있는 숫자들을 시계방향으로 회전시키려 합니다. 
+각 회전은 (x1, y1, x2, y2)인 정수 4개로 표현하며, 그 의미는 다음과 같습니다.
 
-예를 들어, 문자열 S = baabaa 라면
+x1 행 y1 열부터 x2 행 y2 열까지의 영역에 해당하는 직사각형에서 테두리에 있는 숫자들을 한 칸씩 시계방향으로 회전합니다.
+다음은 6 x 6 크기 행렬의 예시입니다.
 
-b aa baa → bb aa → aa →
+grid_example.png
 
-의 순서로 문자열을 모두 제거할 수 있으므로 1을 반환합니다.
+이 행렬에 (2, 2, 5, 4) 회전을 적용하면, 아래 그림과 같이 2행 2열부터 5행 4열까지 영역의 테두리가 시계방향으로 회전합니다. 이때, 중앙의 15와 21이 있는 영역은 회전하지 않는 것을 주의하세요.
+
+rotation_example.png
+
+행렬의 세로 길이(행 개수) rows, 가로 길이(열 개수) columns, 그리고 회전들의 목록 queries가 주어질 때, 각 회전들을 배열에 적용한 뒤, 
+그 회전에 의해 위치가 바뀐 숫자들 중 가장 작은 숫자들을 순서대로 배열에 담아 return 하도록 solution 함수를 완성해주세요.
 
 제한사항
-문자열의 길이 : 1,000,000이하의 자연수
-문자열은 모두 소문자로 이루어져 있습니다.
-입출력 예
-s	result
-baabaa	1
-cdcd	0
+rows는 2 이상 100 이하인 자연수입니다.
+columns는 2 이상 100 이하인 자연수입니다.
+처음에 행렬에는 가로 방향으로 숫자가 1부터 하나씩 증가하면서 적혀있습니다.
+즉, 아무 회전도 하지 않았을 때, i 행 j 열에 있는 숫자는 ((i-1) x columns + j)입니다.
+queries의 행의 개수(회전의 개수)는 1 이상 10,000 이하입니다.
+queries의 각 행은 4개의 정수 [x1, y1, x2, y2]입니다.
+x1 행 y1 열부터 x2 행 y2 열까지 영역의 테두리를 시계방향으로 회전한다는 뜻입니다.
+1 ≤ x1 < x2 ≤ rows, 1 ≤ y1 < y2 ≤ columns입니다.
+모든 회전은 순서대로 이루어집니다.
+예를 들어, 두 번째 회전에 대한 답은 첫 번째 회전을 실행한 다음, 그 상태에서 두 번째 회전을 실행했을 때 이동한 숫자 중 최솟값을 구하면 됩니다.
+입출력 예시
+rows	columns	queries	result
+6	6	[[2,2,5,4],[3,3,6,6],[5,1,6,3]]	[8, 10, 25]
+3	3	[[1,1,2,2],[1,2,2,3],[2,1,3,2],[2,2,3,3]]	[1, 1, 5, 3]
+100	97	[[1,1,100,97]]	[1]
 입출력 예 설명
 입출력 예 #1
-위의 예시와 같습니다.
+
+회전을 수행하는 과정을 그림으로 표현하면 다음과 같습니다.
+example1.png
 입출력 예 #2
-문자열이 남아있지만 짝지어 제거할 수 있는 문자열이 더 이상 존재하지 않기 때문에 0을 반환합니다.
 
-※ 공지 - 2020년 6월 8일 테스트케이스가 추가되었습니다.
+회전을 수행하는 과정을 그림으로 표현하면 다음과 같습니다.
+example2.png
+입출력 예 #3
 
-
-int findbehind(bool* arrbool,int behind) {
-    while (!arrbool[behind]) {
-        behind--;
-        if (behind < 0)
-            break;
-    }
-
-    return behind;
-}
-
-void deleteword(string s, bool* arrbool, int iBehind,int* index) {
-    if (iBehind >= 0 && arrbool[iBehind] && s[iBehind] == s[*index + 1]) {
-        arrbool[iBehind] = false;
-        arrbool[++(*index)] = false;
-        iBehind = findbehind(arrbool, iBehind);
-        if (iBehind >= 0) {
-            deleteword(s, arrbool, iBehind, index);
-        }
-    }
-}
-
-
-int solution(string s)
-{
-    bool answer = false;
-    int index = 0;
-    int iBehind = 0;
-    bool* bDeleteCheck = new bool[s.size()];
-
-    while(index < s.size() - 1){
-        bDeleteCheck[index] = true;
-
-        if (s[index] == s[index + 1]) {
-            bDeleteCheck[index] = false;
-            bDeleteCheck[++index] = false;
-        }
-
-        iBehind = index;
-
-        iBehind = findbehind(bDeleteCheck, iBehind);
-
-        deleteword(s, bDeleteCheck, iBehind, &index);
-
-        index++;
-    }
-
-    for (int i = 0; i < s.size(); i++) {
-        if (bDeleteCheck[i]) {
-            answer = true;
-            break;
-        }
-    }
-
-    delete[] bDeleteCheck;
-    return answer ? 0 : 1;
-}
-
-int main(void) {
-
-    cout << solution("aabbbaab");
-    return 0;
-}
+이 예시에서는 행렬의 테두리에 위치한 모든 칸들이 움직입니다. 따라서, 행렬의 테두리에 있는 수 중 가장 작은 숫자인 1이 바로 답이 됩니다.
 
 
 
