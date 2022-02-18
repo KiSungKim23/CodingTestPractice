@@ -11,156 +11,221 @@
 
 using namespace std; 
 
-bool sortingZacard(string a, string b) {
-    if (a[0] == b[0]) {
-        return a[1] < b[1];
+void printClass(vector<string> placeClass, int iLine, int iSite) {
+    for (int i = 0; i < placeClass.size(); i++) {
+        for (int j = 0; j < placeClass[i].size(); j++) {
+            if (i == iLine && j == iSite) {
+                cout << " A";
+            }
+            else {
+                cout << " " << placeClass[i][j];
+            }
+        }
+        cout << endl;
     }
-    return a[0] < b[0];
+    cout << endl;
 }
 
+bool StudentKeepDistance(vector<string> placeClass, int iLine, int iSite, int MoveIndex, int Dir) {
+    int MaxRow = placeClass.size();
+    int MaxCol = placeClass[0].size();
 
-int solution(string str1, string str2) {
-    int Temp = 0;
-    double dTemp = 0;
-    string szTemp;
+    if (MoveIndex > 2) {
+        return false;
+    }
+    if (iLine < 0 || iSite < 0 || iLine >= MaxRow || iSite >= MaxCol)
+        return false;
 
-    vector<string> str1Zacard;
-    vector<string> str2Zacard;
-
-    int Zacard1 = 0;
-    int Zacard2 = 0;
-
-    if ('A' <= str1[0] && 'Z' >= str1[0]) {
-        Temp = str1[0] - 'A' + 'a';
-        str1[0] = Temp;
+    if (placeClass[iLine][iSite] == 'X') {
+        return false;
     }
 
-    for (int i = 0; i < str1.size() - 1; i++) {
-        if ('A' <= str1[i + 1] && 'Z' >= str1[i + 1]) {
-            Temp = str1[i + 1] - 'A' + 'a';
-            str1[i + 1] = Temp;
-        }
-        szTemp.clear();
-        if ((str1[i] >= 'a' && str1[i] <= 'z') && (str1[i + 1] >= 'a' && str1[i + 1] <= 'z')) {
-            szTemp = str1.substr(i, 2);
-            str1Zacard.push_back(szTemp);
-        }
-    }
-    sort(str1Zacard.begin(), str1Zacard.end(), sortingZacard);
+//    printClass(placeClass, iLine, iSite);
 
-    if ('A' <= str2[0] && 'Z' >= str2[0]) {
-        Temp = str2[0] - 'A' + 'a';
-        str2[0] = Temp;
-    }
-    for (int i = 0; i < str2.size() - 1; i++) {
-        if ('A' <= str2[i + 1] && 'Z' >= str2[i + 1]) {
-            Temp = str2[i + 1] - 'A' + 'a';
-            str2[i + 1] = Temp;
-        }
-        szTemp.clear();
-        if ((str2[i] >= 'a' && str2[i] <= 'z') && (str2[i + 1] >= 'a' && str2[i + 1] <= 'z')) {
-            szTemp = str2.substr(i, 2);
-            str2Zacard.push_back(szTemp);
-        }
-    }
-    sort(str2Zacard.begin(), str2Zacard.end(), sortingZacard);
+    if (MoveIndex > 0 && placeClass[iLine][iSite] == 'P')
+        return true;
 
-    vector<string>::iterator iterstr1 = str1Zacard.begin();
-    vector<string>::iterator iterstr2 = str2Zacard.begin();
+    if (MoveIndex == 0) {
+        if (StudentKeepDistance(placeClass, iLine, iSite + 1, MoveIndex + 1, 0)) 
+            return true;
+        if (StudentKeepDistance(placeClass, iLine, iSite - 1, MoveIndex + 1, 1)) 
+            return true;
+        if (StudentKeepDistance(placeClass, iLine + 1, iSite, MoveIndex + 1, 2)) 
+            return true;
+        if (StudentKeepDistance(placeClass, iLine - 1, iSite, MoveIndex + 1, 3)) 
+            return true;
 
-    while (iterstr1 != str1Zacard.end() || iterstr2 != str2Zacard.end())
-    {
-        if (iterstr1 == str1Zacard.end()) {
-            Zacard1++;
-            iterstr2++;
-            continue;
-        }
-        if (iterstr2 == str2Zacard.end()) {
-            Zacard1++;
-            iterstr1++;
-            continue;
-        }
-        if ((*iterstr1) < (*iterstr2)) {
-            Zacard1++;
-            iterstr1++;
-        }
-        else if ((*iterstr1) > (*iterstr2)) {
-            Zacard1++;
-            iterstr2++;
-        }
-        else {
-            Zacard1++;
-            Zacard2++;
-            iterstr1++;
-            iterstr2++;
-        }
-    }
-    if (Zacard2 == 0 && Zacard1 == 0) {
-        Zacard2 = 1;
-        Zacard1 = 1;
+        return false;
     }
 
-    dTemp = Zacard2;
-    dTemp /= Zacard1;
-    return floor(dTemp * 65536);
+    switch (Dir) {
+    case 0:
+        if (StudentKeepDistance(placeClass, iLine, iSite + 1, MoveIndex + 1, 0))
+            return true;
+        if (StudentKeepDistance(placeClass, iLine + 1, iSite, MoveIndex + 1, 2))
+            return true;
+        if (StudentKeepDistance(placeClass, iLine - 1, iSite, MoveIndex + 1, 3))
+            return true;
+        return false;
+    case 1:
+        if (StudentKeepDistance(placeClass, iLine, iSite - 1, MoveIndex + 1, 1))
+            return true;
+        if (StudentKeepDistance(placeClass, iLine + 1, iSite, MoveIndex + 1, 2))
+            return true;
+        if (StudentKeepDistance(placeClass, iLine - 1, iSite, MoveIndex + 1, 3))
+            return true;
+        return false;
+    case 2:
+        if (StudentKeepDistance(placeClass, iLine, iSite + 1, MoveIndex + 1, 0))
+            return true;
+        if (StudentKeepDistance(placeClass, iLine, iSite - 1, MoveIndex + 1, 1))
+            return true;
+        if (StudentKeepDistance(placeClass, iLine + 1, iSite, MoveIndex + 1, 2))
+            return true;
+        return false;
+    case 3:
+        if (StudentKeepDistance(placeClass, iLine, iSite + 1, MoveIndex + 1, 0))
+            return true;
+        if (StudentKeepDistance(placeClass, iLine, iSite - 1, MoveIndex + 1, 1))
+            return true;
+        if (StudentKeepDistance(placeClass, iLine - 1, iSite, MoveIndex + 1, 3))
+            return true;
+        return false;
+    }
+
+    return false;
+}
+
+int ClassKeepDistance(vector<string> placesClass) {
+    int answer = 1;
+    for (int i = 0; i < placesClass.size(); i++) {
+        for (int j = 0; j < placesClass[i].size(); j++) {
+            if (placesClass[i][j] == 'P') {
+                if (StudentKeepDistance(placesClass, i, j, 0, 0)) {
+                    return 0;
+                }
+            }
+        }
+    }
+
+    return answer;
+}
+
+vector<int> solution(vector<vector<string>> places) {
+    vector<int> answer;
+    for (int i = 0; i < places.size(); i++) {
+        answer.push_back(ClassKeepDistance(places[i]));
+    }
+    return answer;
 }
 
 int main(void) {
-    cout << solution("abc","def");
-    
-
-
+    solution({{"POOOP", "OXXOX", "OPXPX", "OOXOX", "POXXP"},
+        {"POOPX", "OXPXP", "PXXXO", "OXXXO", "OOOPP"},
+        {"PXOPX", "OXOXP", "OXPOX", "OXXOP", "PXPOX"},
+        {"OOOXX", "XOOOX", "OOOXX", "OXOOX", "OOOOO"},
+        {"PXPXP", "XPXPX", "PXPXP", "XPXPX", "PXPXP"}} );
     return 0;
 }
 
 
 /*
-뉴스 클러스터링
-여러 언론사에서 쏟아지는 뉴스, 특히 속보성 뉴스를 보면 비슷비슷한 제목의 기사가 많아 정작 필요한 기사를 찾기가 어렵다.
-Daum 뉴스의 개발 업무를 맡게 된 신입사원 튜브는 사용자들이 편리하게 다양한 뉴스를 찾아볼 수 있도록 문제점을 개선하는 업무를 맡게 되었다.
+개발자를 희망하는 죠르디가 카카오에 면접을 보러 왔습니다.
 
-개발의 방향을 잡기 위해 튜브는 우선 최근 화제가 되고 있는 "카카오 신입 개발자 공채" 관련 기사를 검색해보았다.
+코로나 바이러스 감염 예방을 위해 응시자들은 거리를 둬서 대기를 해야하는데 개발 직군 면접인 만큼
+아래와 같은 규칙으로 대기실에 거리를 두고 앉도록 안내하고 있습니다.
 
-카카오 첫 공채..'블라인드' 방식 채용
-카카오, 합병 후 첫 공채.. 블라인드 전형으로 개발자 채용
-카카오, 블라인드 전형으로 신입 개발자 공채
-카카오 공채, 신입 개발자 코딩 능력만 본다
-카카오, 신입 공채.. "코딩 실력만 본다"
-카카오 "코딩 능력만으로 2018 신입 개발자 뽑는다"
+대기실은 5개이며, 각 대기실은 5x5 크기입니다.
+거리두기를 위하여 응시자들 끼리는 맨해튼 거리1가 2 이하로 앉지 말아 주세요.
+단 응시자가 앉아있는 자리 사이가 파티션으로 막혀 있을 경우에는 허용합니다.
+예를 들어,
 
-기사의 제목을 기준으로 "블라인드 전형"에 주목하는 기사와 "코딩 테스트"에 주목하는 기사로 나뉘는 걸 발견했다.
-튜브는 이들을 각각 묶어서 보여주면 카카오 공채 관련 기사를 찾아보는 사용자에게 유용할 듯싶었다.
+PXP.png	PX_XP.png	PX_OP.png
+위 그림처럼 자리 사이에 파티션이 존재한다면 맨해튼 거리가 2여도 거리두기를 지킨 것입니다.	
+위 그림처럼 파티션을 사이에 두고 앉은 경우도 거리두기를 지킨 것입니다.	
+위 그림처럼 자리 사이가 맨해튼 거리 2이고 사이에 빈 테이블이 있는 경우는 거리두기를 지키지 않은 것입니다.
+P.png	O.png	X.png
+응시자가 앉아있는 자리(P)를 의미합니다.	빈 테이블(O)을 의미합니다.	파티션(X)을 의미합니다.
+5개의 대기실을 본 죠르디는 각 대기실에서 응시자들이 거리두기를 잘 기키고 있는지 알고 싶어졌습니다. 
+자리에 앉아있는 응시자들의 정보와 대기실 구조를 대기실별로 담은 2차원 문자열 배열 places가 매개변수로 주어집니다. 
+각 대기실별로 거리두기를 지키고 있으면 1을, 한 명이라도 지키지 않고 있으면 0을 배열에 담아 return 하도록 solution 함수를 완성해 주세요.
 
-유사한 기사를 묶는 기준을 정하기 위해서 논문과 자료를 조사하던 튜브는 "자카드 유사도"라는 방법을 찾아냈다.
+제한사항
+places의 행 길이(대기실 개수) = 5
+places의 각 행은 하나의 대기실 구조를 나타냅니다.
+places의 열 길이(대기실 세로 길이) = 5
+places의 원소는 P,O,X로 이루어진 문자열입니다.
+places 원소의 길이(대기실 가로 길이) = 5
+P는 응시자가 앉아있는 자리를 의미합니다.
+O는 빈 테이블을 의미합니다.
+X는 파티션을 의미합니다.
+입력으로 주어지는 5개 대기실의 크기는 모두 5x5 입니다.
+return 값 형식
+1차원 정수 배열에 5개의 원소를 담아서 return 합니다.
+places에 담겨 있는 5개 대기실의 순서대로, 거리두기 준수 여부를 차례대로 배열에 담습니다.
+각 대기실 별로 모든 응시자가 거리두기를 지키고 있으면 1을, 한 명이라도 지키지 않고 있으면 0을 담습니다.
+입출력 예
+places	result
+[["POOOP", "OXXOX", "OPXPX", "OOXOX", "POXXP"],
+["POOPX", "OXPXP", "PXXXO", "OXXXO", "OOOPP"],
+["PXOPX", "OXOXP", "OXPOX", "OXXOP", "PXPOX"],
+["OOOXX", "XOOOX", "OOOXX", "OXOOX", "OOOOO"],
+["PXPXP", "XPXPX", "PXPXP", "XPXPX", "PXPXP"]]	[1, 0, 1, 1, 1]
+입출력 예 설명
+입출력 예 #1
 
-자카드 유사도는 집합 간의 유사도를 검사하는 여러 방법 중의 하나로 알려져 있다. 두 집합 A, B 사이의 자카드 유사도 J(A, B)는 두 집합의 교집합 크기를 두 집합의 합집합 크기로 나눈 값으로 정의된다.
+첫 번째 대기실
 
-예를 들어 집합 A = {1, 2, 3}, 집합 B = {2, 3, 4}라고 할 때, 교집합 A ∩ B = {2, 3}, 합집합 A ∪ B = {1, 2, 3, 4}이 되므로, 집합 A, B 사이의 자카드 유사도 J(A, B) = 2/4 = 0.5가 된다. 
-집합 A와 집합 B가 모두 공집합일 경우에는 나눗셈이 정의되지 않으니 따로 J(A, B) = 1로 정의한다.
+No.	0	1	2	3	4
+0	P	O	O	O	P
+1	O	X	X	O	X
+2	O	P	X	P	X
+3	O	O	X	O	X
+4	P	O	X	X	P
+모든 응시자가 거리두기를 지키고 있습니다.
+두 번째 대기실
 
-자카드 유사도는 원소의 중복을 허용하는 다중집합에 대해서 확장할 수 있다. 다중집합 A는 원소 "1"을 3개 가지고 있고, 다중집합 B는 원소 "1"을 5개 가지고 있다고 하자.
-이 다중집합의 교집합 A ∩ B는 원소 "1"을 min(3, 5)인 3개, 합집합 A ∪ B는 원소 "1"을 max(3, 5)인 5개 가지게 된다. 
-다중집합 A = {1, 1, 2, 2, 3}, 다중집합 B = {1, 2, 2, 4, 5}라고 하면, 교집합 A ∩ B = {1, 2, 2}, 합집합 A ∪ B = {1, 1, 2, 2, 3, 4, 5}가 되므로, 자카드 유사도 J(A, B) = 3/7, 약 0.42가 된다.
+No.	0	1	2	3	4
+0	P	O	O	P	X
+1	O	X	P	X	P
+2	P	X	X	X	O
+3	O	X	X	X	O
+4	O	O	O	P	P
+(0, 0) 자리의 응시자와 (2, 0) 자리의 응시자가 거리두기를 지키고 있지 않습니다.
+(1, 2) 자리의 응시자와 (0, 3) 자리의 응시자가 거리두기를 지키고 있지 않습니다.
+(4, 3) 자리의 응시자와 (4, 4) 자리의 응시자가 거리두기를 지키고 있지 않습니다.
+세 번째 대기실
 
-이를 이용하여 문자열 사이의 유사도를 계산하는데 이용할 수 있다. 
-문자열 "FRANCE"와 "FRENCH"가 주어졌을 때, 이를 두 글자씩 끊어서 다중집합을 만들 수 있다. 
-각각 {FR, RA, AN, NC, CE}, {FR, RE, EN, NC, CH}가 되며, 교집합은 {FR, NC}, 합집합은 {FR, RA, AN, NC, CE, RE, EN, CH}가 되므로, 두 문자열 사이의 자카드 유사도 J("FRANCE", "FRENCH") = 2/8 = 0.25가 된다.
+No.	0	1	2	3	4
+0	P	X	O	P	X
+1	O	X	O	X	P
+2	O	X	P	O	X
+3	O	X	X	O	P
+4	P	X	P	O	X
+모든 응시자가 거리두기를 지키고 있습니다.
+네 번째 대기실
 
-입력 형식
-입력으로는 str1과 str2의 두 문자열이 들어온다. 각 문자열의 길이는 2 이상, 1,000 이하이다.
-입력으로 들어온 문자열은 두 글자씩 끊어서 다중집합의 원소로 만든다. 이때 영문자로 된 글자 쌍만 유효하고, 기타 공백이나 숫자, 특수 문자가 들어있는 경우는 그 글자 쌍을 버린다.
-예를 들어 "ab+"가 입력으로 들어오면, "ab"만 다중집합의 원소로 삼고, "b+"는 버린다.
-다중집합 원소 사이를 비교할 때, 대문자와 소문자의 차이는 무시한다. "AB"와 "Ab", "ab"는 같은 원소로 취급한다.
-출력 형식
-입력으로 들어온 두 문자열의 자카드 유사도를 출력한다. 유사도 값은 0에서 1 사이의 실수이므로, 이를 다루기 쉽도록 65536을 곱한 후에 소수점 아래를 버리고 정수부만 출력한다.
+No.	0	1	2	3	4
+0	O	O	O	X	X
+1	X	O	O	O	X
+2	O	O	O	X	X
+3	O	X	O	O	X
+4	O	O	O	O	O
+대기실에 응시자가 없으므로 거리두기를 지키고 있습니다.
+다섯 번째 대기실
 
-예제 입출력
-str1	str2	answer
-FRANCE	french	16384
-handshake	shake hands	65536
-aa1+aa2	AAAA12	43690
-E=M*C^2	e=m*c^2	65536
+No.	0	1	2	3	4
+0	P	X	P	X	P
+1	X	P	X	P	X
+2	P	X	P	X	P
+3	X	P	X	P	X
+4	P	X	P	X	P
+모든 응시자가 거리두기를 지키고 있습니다.
+두 번째 대기실을 제외한 모든 대기실에서 거리두기가 지켜지고 있으므로, 배열 [1, 0, 1, 1, 1]을 return 합니다.
 
+제한시간 안내
+정확성 테스트 : 10초
+두 테이블 T1, T2가 행렬 (r1, c1), (r2, c2)에 각각 위치하고 있다면, T1, T2 사이의 맨해튼 거리는 |r1 - r2| + |c1 - c2| 입니다. ↩
 
 
 */
