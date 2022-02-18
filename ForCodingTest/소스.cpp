@@ -10,139 +10,136 @@
 
 using namespace std; 
 
-void printTable(vector<vector<int>>* Table) {
-    for (int i = 0; i < Table->size(); i++) {
-        cout << i + 1 << "행 :";
-        for (int j = 0; j < (*Table)[i].size(); j++) {
-            if ((*Table)[i][j] < 10) {
-                cout << " " << (*Table)[i][j] << " ";
-            }
-            else {
-                cout << (*Table)[i][j] << " ";
-            }
-        }
-        cout << endl;
+int AddStack(string p, int iIndex) {
+    switch (p[iIndex]) {
+    case '(':
+        return 1;
+    case ')':
+        return -1;
+    default:
+        return 0;
     }
-    cout << endl;
 }
 
-int turn(vector<vector<int>>* Table,int ay,int ax, int by, int bx) {
+string solution(string p) {
+    string answer = "";
 
-    int iTemp1 = (*Table)[ay][ax - 1];
-    int iTemp2 = 0;
-    int ireturn = iTemp1;
+    string u;
+    string v;
 
-    for (int i = ax - 1; i < bx; i++) {
-        iTemp2 = iTemp1;
-        iTemp1 = (*Table)[ay - 1][i];
-        if (iTemp1 < ireturn) {
-            ireturn = iTemp1;
-        }
-        (*Table)[ay - 1][i] = iTemp2;
-    }
-    for (int i = ay; i < by; i++) {
-        iTemp2 = iTemp1;
-        iTemp1 = (*Table)[i][bx - 1];
-        if (iTemp1 < ireturn) {
-            ireturn = iTemp1; 
-        }
-        (*Table)[i][bx - 1] = iTemp2;
-    }
-    for (int i = bx - 2; i >= ax - 1; i--) {
-        iTemp2 = iTemp1;
-        iTemp1 = (*Table)[by - 1][i];
-        if (iTemp1 < ireturn) {
-            ireturn = iTemp1;
-        }
-        (*Table)[by - 1][i] = iTemp2;
-    }
-    for (int i = by - 2; i >= ay - 1; i--) {
-        iTemp2 = iTemp1;
-        iTemp1 = (*Table)[i][ax - 1];
-        if (iTemp1 < ireturn) {
-            ireturn = iTemp1;
-        }
-        (*Table)[i][ax - 1] = iTemp2;
+    if (p.size() == 0) return answer;
+
+    int iIndex = 0;
+    int iStack = 0;
+
+    bool uChange = false;
+
+    iStack = AddStack(p, iIndex++);
+
+    while (iStack != 0) {
+        iStack += AddStack(p, iIndex++);
     }
 
-    return ireturn;
-}
+    u = p.substr(0, iIndex);
+    v = p.substr(iIndex);
 
-vector<int> solution(int rows, int columns, vector<vector<int>> queries) {
-    vector<int> answer;
-    vector<vector<int>> Table;
-    vector<int> TableTemp;
+    if (AddStack(u, 0) == 1) {
+        v = solution(v);
 
-    Table.clear();
-    for (int i = 0; i < rows; i++) {
-        TableTemp.clear();
-        TableTemp.reserve(columns * sizeof(int));
-        for (int j = 0; j < columns; j++) {
-            TableTemp.push_back(i * columns + (j + 1));
-        }
-        Table.push_back(TableTemp);
+        answer = u + v;
     }
-
-    for (int i = 0; i < queries.size(); i++) {
-        answer.push_back(turn(&Table, queries[i][0], queries[i][1], queries[i][2], queries[i][3]));
+    else {
+        answer = "(";
+        answer += solution(v);
+        answer += ")";
+        u = u.substr(1, u.size() - 2);
+        for (int i = 0; i < u.size(); i++) {
+            switch (u[i])
+            {
+            case '(':
+                u[i] = ')';
+                break;
+            case ')':
+                u[i] = '(';
+                break;
+            }
+        }
+        answer += u;
     }
 
     return answer;
 }
 
 int main(void) {
-    solution(6, 6, { {2,2,5,4},{3,3,6,6},{5,1,6,3 } });
+    cout << solution("))((()");
+
+
+
     return 0;
 }
 
 
 /*
-rows x columns 크기인 행렬이 있습니다. 
-행렬에는 1부터 rows x columns까지의 숫자가 한 줄씩 순서대로 적혀있습니다. 
-이 행렬에서 직사각형 모양의 범위를 여러 번 선택해, 테두리 부분에 있는 숫자들을 시계방향으로 회전시키려 합니다. 
-각 회전은 (x1, y1, x2, y2)인 정수 4개로 표현하며, 그 의미는 다음과 같습니다.
+카카오에 신입 개발자로 입사한 "콘"은 선배 개발자로부터 개발역량 강화를 위해 다른 개발자가 작성한 소스 코드를 분석하여 문제점을 발견하고 수정하라는 업무 과제를 받았습니다.
+소스를 컴파일하여 로그를 보니 대부분 소스 코드 내 작성된 괄호가 개수는 맞지만 짝이 맞지 않은 형태로 작성되어 오류가 나는 것을 알게 되었습니다.
+수정해야 할 소스 파일이 너무 많아서 고민하던 "콘"은 소스 코드에 작성된 모든 괄호를 뽑아서 올바른 순서대로 배치된 괄호 문자열을 알려주는 프로그램을 다음과 같이 개발하려고 합니다.
 
-x1 행 y1 열부터 x2 행 y2 열까지의 영역에 해당하는 직사각형에서 테두리에 있는 숫자들을 한 칸씩 시계방향으로 회전합니다.
-다음은 6 x 6 크기 행렬의 예시입니다.
+용어의 정의
+'(' 와 ')' 로만 이루어진 문자열이 있을 경우, '(' 의 개수와 ')' 의 개수가 같다면 이를 균형잡힌 괄호 문자열이라고 부릅니다.
+그리고 여기에 '('와 ')'의 괄호의 짝도 모두 맞을 경우에는 이를 올바른 괄호 문자열이라고 부릅니다.
+예를 들어, "(()))("와 같은 문자열은 "균형잡힌 괄호 문자열" 이지만 "올바른 괄호 문자열"은 아닙니다.
+반면에 "(())()"와 같은 문자열은 "균형잡힌 괄호 문자열" 이면서 동시에 "올바른 괄호 문자열" 입니다.
 
-grid_example.png
+'(' 와 ')' 로만 이루어진 문자열 w가 "균형잡힌 괄호 문자열" 이라면 다음과 같은 과정을 통해 "올바른 괄호 문자열"로 변환할 수 있습니다.
 
-이 행렬에 (2, 2, 5, 4) 회전을 적용하면, 아래 그림과 같이 2행 2열부터 5행 4열까지 영역의 테두리가 시계방향으로 회전합니다. 이때, 중앙의 15와 21이 있는 영역은 회전하지 않는 것을 주의하세요.
+1. 입력이 빈 문자열인 경우, 빈 문자열을 반환합니다.
+2. 문자열 w를 두 "균형잡힌 괄호 문자열" u, v로 분리합니다. 단, u는 "균형잡힌 괄호 문자열"로 더 이상 분리할 수 없어야 하며, v는 빈 문자열이 될 수 있습니다.
+3. 문자열 u가 "올바른 괄호 문자열" 이라면 문자열 v에 대해 1단계부터 다시 수행합니다.
+  3-1. 수행한 결과 문자열을 u에 이어 붙인 후 반환합니다.
+4. 문자열 u가 "올바른 괄호 문자열"이 아니라면 아래 과정을 수행합니다.
+  4-1. 빈 문자열에 첫 번째 문자로 '('를 붙입니다.
+  4-2. 문자열 v에 대해 1단계부터 재귀적으로 수행한 결과 문자열을 이어 붙입니다.
+  4-3. ')'를 다시 붙입니다.
+  4-4. u의 첫 번째와 마지막 문자를 제거하고, 나머지 문자열의 괄호 방향을 뒤집어서 뒤에 붙입니다.
+  4-5. 생성된 문자열을 반환합니다.
+"균형잡힌 괄호 문자열" p가 매개변수로 주어질 때, 주어진 알고리즘을 수행해 "올바른 괄호 문자열"로 변환한 결과를 return 하도록 solution 함수를 완성해 주세요.
 
-rotation_example.png
-
-행렬의 세로 길이(행 개수) rows, 가로 길이(열 개수) columns, 그리고 회전들의 목록 queries가 주어질 때, 각 회전들을 배열에 적용한 뒤, 
-그 회전에 의해 위치가 바뀐 숫자들 중 가장 작은 숫자들을 순서대로 배열에 담아 return 하도록 solution 함수를 완성해주세요.
-
-제한사항
-rows는 2 이상 100 이하인 자연수입니다.
-columns는 2 이상 100 이하인 자연수입니다.
-처음에 행렬에는 가로 방향으로 숫자가 1부터 하나씩 증가하면서 적혀있습니다.
-즉, 아무 회전도 하지 않았을 때, i 행 j 열에 있는 숫자는 ((i-1) x columns + j)입니다.
-queries의 행의 개수(회전의 개수)는 1 이상 10,000 이하입니다.
-queries의 각 행은 4개의 정수 [x1, y1, x2, y2]입니다.
-x1 행 y1 열부터 x2 행 y2 열까지 영역의 테두리를 시계방향으로 회전한다는 뜻입니다.
-1 ≤ x1 < x2 ≤ rows, 1 ≤ y1 < y2 ≤ columns입니다.
-모든 회전은 순서대로 이루어집니다.
-예를 들어, 두 번째 회전에 대한 답은 첫 번째 회전을 실행한 다음, 그 상태에서 두 번째 회전을 실행했을 때 이동한 숫자 중 최솟값을 구하면 됩니다.
-입출력 예시
-rows	columns	queries	result
-6	6	[[2,2,5,4],[3,3,6,6],[5,1,6,3]]	[8, 10, 25]
-3	3	[[1,1,2,2],[1,2,2,3],[2,1,3,2],[2,2,3,3]]	[1, 1, 5, 3]
-100	97	[[1,1,100,97]]	[1]
-입출력 예 설명
+매개변수 설명
+p는 '(' 와 ')' 로만 이루어진 문자열이며 길이는 2 이상 1,000 이하인 짝수입니다.
+문자열 p를 이루는 '(' 와 ')' 의 개수는 항상 같습니다.
+만약 p가 이미 "올바른 괄호 문자열"이라면 그대로 return 하면 됩니다.
+입출력 예
+p	result
+"(()())()"	"(()())()"
+")("	"()"
+"()))((()"	"()(())()"
+입출력 예에 대한 설명
 입출력 예 #1
+이미 "올바른 괄호 문자열" 입니다.
 
-회전을 수행하는 과정을 그림으로 표현하면 다음과 같습니다.
-example1.png
 입출력 예 #2
 
-회전을 수행하는 과정을 그림으로 표현하면 다음과 같습니다.
-example2.png
+두 문자열 u, v로 분리합니다.
+u = ")("
+v = ""
+u가 "올바른 괄호 문자열"이 아니므로 다음과 같이 새로운 문자열을 만듭니다.
+v에 대해 1단계부터 재귀적으로 수행하면 빈 문자열이 반환됩니다.
+u의 앞뒤 문자를 제거하고, 나머지 문자의 괄호 방향을 뒤집으면 ""이 됩니다.
+따라서 생성되는 문자열은 "(" + "" + ")" + ""이며, 최종적으로 "()"로 변환됩니다.
 입출력 예 #3
 
-이 예시에서는 행렬의 테두리에 위치한 모든 칸들이 움직입니다. 따라서, 행렬의 테두리에 있는 수 중 가장 작은 숫자인 1이 바로 답이 됩니다.
-
+두 문자열 u, v로 분리합니다.
+u = "()"
+v = "))((()"
+문자열 u가 "올바른 괄호 문자열"이므로 그대로 두고, v에 대해 재귀적으로 수행합니다.
+다시 두 문자열 u, v로 분리합니다.
+u = "))(("
+v = "()"
+u가 "올바른 괄호 문자열"이 아니므로 다음과 같이 새로운 문자열을 만듭니다.
+v에 대해 1단계부터 재귀적으로 수행하면 "()"이 반환됩니다.
+u의 앞뒤 문자를 제거하고, 나머지 문자의 괄호 방향을 뒤집으면 "()"이 됩니다.
+따라서 생성되는 문자열은 "(" + "()" + ")" + "()"이며, 최종적으로 "(())()"를 반환합니다.
+처음에 그대로 둔 문자열에 반환된 문자열을 이어 붙이면 "()" + "(())()" = "()(())()"가 됩니다.
 
 
 
