@@ -1,4 +1,4 @@
-﻿#include <iostream>
+﻿#include <iostream>,
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -6,73 +6,108 @@
 #include <list>
 #include<algorithm>
 #include <queue>
+#include <math.h>
 
 
 using namespace std; 
 
-int AddStack(string p, int iIndex) {
-    switch (p[iIndex]) {
-    case '(':
-        return 1;
-    case ')':
-        return -1;
-    default:
-        return 0;
+bool sortingZacard(string a, string b) {
+    if (a[0] == b[0]) {
+        return a[1] < b[1];
     }
+    return a[0] < b[0];
 }
 
-string solution(string p) {
-    string answer = "";
 
-    string u;
-    string v;
+int solution(string str1, string str2) {
+    int Temp = 0;
+    double dTemp = 0;
+    string szTemp;
 
-    if (p.size() == 0) return answer;
+    vector<string> str1Zacard;
+    vector<string> str2Zacard;
 
-    int iIndex = 0;
-    int iStack = 0;
+    int Zacard1 = 0;
+    int Zacard2 = 0;
 
-    bool uChange = false;
-
-    iStack = AddStack(p, iIndex++);
-
-    while (iStack != 0) {
-        iStack += AddStack(p, iIndex++);
+    if ('A' <= str1[0] && 'Z' >= str1[0]) {
+        Temp = str1[0] - 'A' + 'a';
+        str1[0] = Temp;
     }
 
-    u = p.substr(0, iIndex);
-    v = p.substr(iIndex);
-
-    if (AddStack(u, 0) == 1) {
-        v = solution(v);
-
-        answer = u + v;
-    }
-    else {
-        answer = "(";
-        answer += solution(v);
-        answer += ")";
-        u = u.substr(1, u.size() - 2);
-        for (int i = 0; i < u.size(); i++) {
-            switch (u[i])
-            {
-            case '(':
-                u[i] = ')';
-                break;
-            case ')':
-                u[i] = '(';
-                break;
-            }
+    for (int i = 0; i < str1.size() - 1; i++) {
+        if ('A' <= str1[i + 1] && 'Z' >= str1[i + 1]) {
+            Temp = str1[i + 1] - 'A' + 'a';
+            str1[i + 1] = Temp;
         }
-        answer += u;
+        szTemp.clear();
+        if ((str1[i] >= 'a' && str1[i] <= 'z') && (str1[i + 1] >= 'a' && str1[i + 1] <= 'z')) {
+            szTemp = str1.substr(i, 2);
+            str1Zacard.push_back(szTemp);
+        }
+    }
+    sort(str1Zacard.begin(), str1Zacard.end(), sortingZacard);
+
+    if ('A' <= str2[0] && 'Z' >= str2[0]) {
+        Temp = str2[0] - 'A' + 'a';
+        str2[0] = Temp;
+    }
+    for (int i = 0; i < str2.size() - 1; i++) {
+        if ('A' <= str2[i + 1] && 'Z' >= str2[i + 1]) {
+            Temp = str2[i + 1] - 'A' + 'a';
+            str2[i + 1] = Temp;
+        }
+        szTemp.clear();
+        if ((str2[i] >= 'a' && str2[i] <= 'z') && (str2[i + 1] >= 'a' && str2[i + 1] <= 'z')) {
+            szTemp = str2.substr(i, 2);
+            str2Zacard.push_back(szTemp);
+        }
+    }
+    sort(str2Zacard.begin(), str2Zacard.end(), sortingZacard);
+
+    vector<string>::iterator iterstr1 = str1Zacard.begin();
+    vector<string>::iterator iterstr2 = str2Zacard.begin();
+
+    while (iterstr1 != str1Zacard.end() || iterstr2 != str2Zacard.end())
+    {
+        if (iterstr1 == str1Zacard.end()) {
+            Zacard1++;
+            iterstr2++;
+            continue;
+        }
+        if (iterstr2 == str2Zacard.end()) {
+            Zacard1++;
+            iterstr1++;
+            continue;
+        }
+        if ((*iterstr1) < (*iterstr2)) {
+            Zacard1++;
+            iterstr1++;
+        }
+        else if ((*iterstr1) > (*iterstr2)) {
+            Zacard1++;
+            iterstr2++;
+        }
+        else {
+            Zacard1++;
+            Zacard2++;
+            iterstr1++;
+            iterstr2++;
+        }
+    }
+    if (Zacard2 == 0 && Zacard1 == 0) {
+        Zacard2 = 1;
+        Zacard1 = 1;
     }
 
-    return answer;
+    dTemp = Zacard2;
+    dTemp /= Zacard1;
+    return floor(dTemp * 65536);
 }
 
 int main(void) {
-    cout << solution("))((()");
-
+    cout << solution("abc","def");
+    
 
 
     return 0;
@@ -80,67 +115,51 @@ int main(void) {
 
 
 /*
-카카오에 신입 개발자로 입사한 "콘"은 선배 개발자로부터 개발역량 강화를 위해 다른 개발자가 작성한 소스 코드를 분석하여 문제점을 발견하고 수정하라는 업무 과제를 받았습니다.
-소스를 컴파일하여 로그를 보니 대부분 소스 코드 내 작성된 괄호가 개수는 맞지만 짝이 맞지 않은 형태로 작성되어 오류가 나는 것을 알게 되었습니다.
-수정해야 할 소스 파일이 너무 많아서 고민하던 "콘"은 소스 코드에 작성된 모든 괄호를 뽑아서 올바른 순서대로 배치된 괄호 문자열을 알려주는 프로그램을 다음과 같이 개발하려고 합니다.
+뉴스 클러스터링
+여러 언론사에서 쏟아지는 뉴스, 특히 속보성 뉴스를 보면 비슷비슷한 제목의 기사가 많아 정작 필요한 기사를 찾기가 어렵다.
+Daum 뉴스의 개발 업무를 맡게 된 신입사원 튜브는 사용자들이 편리하게 다양한 뉴스를 찾아볼 수 있도록 문제점을 개선하는 업무를 맡게 되었다.
 
-용어의 정의
-'(' 와 ')' 로만 이루어진 문자열이 있을 경우, '(' 의 개수와 ')' 의 개수가 같다면 이를 균형잡힌 괄호 문자열이라고 부릅니다.
-그리고 여기에 '('와 ')'의 괄호의 짝도 모두 맞을 경우에는 이를 올바른 괄호 문자열이라고 부릅니다.
-예를 들어, "(()))("와 같은 문자열은 "균형잡힌 괄호 문자열" 이지만 "올바른 괄호 문자열"은 아닙니다.
-반면에 "(())()"와 같은 문자열은 "균형잡힌 괄호 문자열" 이면서 동시에 "올바른 괄호 문자열" 입니다.
+개발의 방향을 잡기 위해 튜브는 우선 최근 화제가 되고 있는 "카카오 신입 개발자 공채" 관련 기사를 검색해보았다.
 
-'(' 와 ')' 로만 이루어진 문자열 w가 "균형잡힌 괄호 문자열" 이라면 다음과 같은 과정을 통해 "올바른 괄호 문자열"로 변환할 수 있습니다.
+카카오 첫 공채..'블라인드' 방식 채용
+카카오, 합병 후 첫 공채.. 블라인드 전형으로 개발자 채용
+카카오, 블라인드 전형으로 신입 개발자 공채
+카카오 공채, 신입 개발자 코딩 능력만 본다
+카카오, 신입 공채.. "코딩 실력만 본다"
+카카오 "코딩 능력만으로 2018 신입 개발자 뽑는다"
 
-1. 입력이 빈 문자열인 경우, 빈 문자열을 반환합니다.
-2. 문자열 w를 두 "균형잡힌 괄호 문자열" u, v로 분리합니다. 단, u는 "균형잡힌 괄호 문자열"로 더 이상 분리할 수 없어야 하며, v는 빈 문자열이 될 수 있습니다.
-3. 문자열 u가 "올바른 괄호 문자열" 이라면 문자열 v에 대해 1단계부터 다시 수행합니다.
-  3-1. 수행한 결과 문자열을 u에 이어 붙인 후 반환합니다.
-4. 문자열 u가 "올바른 괄호 문자열"이 아니라면 아래 과정을 수행합니다.
-  4-1. 빈 문자열에 첫 번째 문자로 '('를 붙입니다.
-  4-2. 문자열 v에 대해 1단계부터 재귀적으로 수행한 결과 문자열을 이어 붙입니다.
-  4-3. ')'를 다시 붙입니다.
-  4-4. u의 첫 번째와 마지막 문자를 제거하고, 나머지 문자열의 괄호 방향을 뒤집어서 뒤에 붙입니다.
-  4-5. 생성된 문자열을 반환합니다.
-"균형잡힌 괄호 문자열" p가 매개변수로 주어질 때, 주어진 알고리즘을 수행해 "올바른 괄호 문자열"로 변환한 결과를 return 하도록 solution 함수를 완성해 주세요.
+기사의 제목을 기준으로 "블라인드 전형"에 주목하는 기사와 "코딩 테스트"에 주목하는 기사로 나뉘는 걸 발견했다.
+튜브는 이들을 각각 묶어서 보여주면 카카오 공채 관련 기사를 찾아보는 사용자에게 유용할 듯싶었다.
 
-매개변수 설명
-p는 '(' 와 ')' 로만 이루어진 문자열이며 길이는 2 이상 1,000 이하인 짝수입니다.
-문자열 p를 이루는 '(' 와 ')' 의 개수는 항상 같습니다.
-만약 p가 이미 "올바른 괄호 문자열"이라면 그대로 return 하면 됩니다.
-입출력 예
-p	result
-"(()())()"	"(()())()"
-")("	"()"
-"()))((()"	"()(())()"
-입출력 예에 대한 설명
-입출력 예 #1
-이미 "올바른 괄호 문자열" 입니다.
+유사한 기사를 묶는 기준을 정하기 위해서 논문과 자료를 조사하던 튜브는 "자카드 유사도"라는 방법을 찾아냈다.
 
-입출력 예 #2
+자카드 유사도는 집합 간의 유사도를 검사하는 여러 방법 중의 하나로 알려져 있다. 두 집합 A, B 사이의 자카드 유사도 J(A, B)는 두 집합의 교집합 크기를 두 집합의 합집합 크기로 나눈 값으로 정의된다.
 
-두 문자열 u, v로 분리합니다.
-u = ")("
-v = ""
-u가 "올바른 괄호 문자열"이 아니므로 다음과 같이 새로운 문자열을 만듭니다.
-v에 대해 1단계부터 재귀적으로 수행하면 빈 문자열이 반환됩니다.
-u의 앞뒤 문자를 제거하고, 나머지 문자의 괄호 방향을 뒤집으면 ""이 됩니다.
-따라서 생성되는 문자열은 "(" + "" + ")" + ""이며, 최종적으로 "()"로 변환됩니다.
-입출력 예 #3
+예를 들어 집합 A = {1, 2, 3}, 집합 B = {2, 3, 4}라고 할 때, 교집합 A ∩ B = {2, 3}, 합집합 A ∪ B = {1, 2, 3, 4}이 되므로, 집합 A, B 사이의 자카드 유사도 J(A, B) = 2/4 = 0.5가 된다. 
+집합 A와 집합 B가 모두 공집합일 경우에는 나눗셈이 정의되지 않으니 따로 J(A, B) = 1로 정의한다.
 
-두 문자열 u, v로 분리합니다.
-u = "()"
-v = "))((()"
-문자열 u가 "올바른 괄호 문자열"이므로 그대로 두고, v에 대해 재귀적으로 수행합니다.
-다시 두 문자열 u, v로 분리합니다.
-u = "))(("
-v = "()"
-u가 "올바른 괄호 문자열"이 아니므로 다음과 같이 새로운 문자열을 만듭니다.
-v에 대해 1단계부터 재귀적으로 수행하면 "()"이 반환됩니다.
-u의 앞뒤 문자를 제거하고, 나머지 문자의 괄호 방향을 뒤집으면 "()"이 됩니다.
-따라서 생성되는 문자열은 "(" + "()" + ")" + "()"이며, 최종적으로 "(())()"를 반환합니다.
-처음에 그대로 둔 문자열에 반환된 문자열을 이어 붙이면 "()" + "(())()" = "()(())()"가 됩니다.
+자카드 유사도는 원소의 중복을 허용하는 다중집합에 대해서 확장할 수 있다. 다중집합 A는 원소 "1"을 3개 가지고 있고, 다중집합 B는 원소 "1"을 5개 가지고 있다고 하자.
+이 다중집합의 교집합 A ∩ B는 원소 "1"을 min(3, 5)인 3개, 합집합 A ∪ B는 원소 "1"을 max(3, 5)인 5개 가지게 된다. 
+다중집합 A = {1, 1, 2, 2, 3}, 다중집합 B = {1, 2, 2, 4, 5}라고 하면, 교집합 A ∩ B = {1, 2, 2}, 합집합 A ∪ B = {1, 1, 2, 2, 3, 4, 5}가 되므로, 자카드 유사도 J(A, B) = 3/7, 약 0.42가 된다.
 
+이를 이용하여 문자열 사이의 유사도를 계산하는데 이용할 수 있다. 
+문자열 "FRANCE"와 "FRENCH"가 주어졌을 때, 이를 두 글자씩 끊어서 다중집합을 만들 수 있다. 
+각각 {FR, RA, AN, NC, CE}, {FR, RE, EN, NC, CH}가 되며, 교집합은 {FR, NC}, 합집합은 {FR, RA, AN, NC, CE, RE, EN, CH}가 되므로, 두 문자열 사이의 자카드 유사도 J("FRANCE", "FRENCH") = 2/8 = 0.25가 된다.
+
+입력 형식
+입력으로는 str1과 str2의 두 문자열이 들어온다. 각 문자열의 길이는 2 이상, 1,000 이하이다.
+입력으로 들어온 문자열은 두 글자씩 끊어서 다중집합의 원소로 만든다. 이때 영문자로 된 글자 쌍만 유효하고, 기타 공백이나 숫자, 특수 문자가 들어있는 경우는 그 글자 쌍을 버린다.
+예를 들어 "ab+"가 입력으로 들어오면, "ab"만 다중집합의 원소로 삼고, "b+"는 버린다.
+다중집합 원소 사이를 비교할 때, 대문자와 소문자의 차이는 무시한다. "AB"와 "Ab", "ab"는 같은 원소로 취급한다.
+출력 형식
+입력으로 들어온 두 문자열의 자카드 유사도를 출력한다. 유사도 값은 0에서 1 사이의 실수이므로, 이를 다루기 쉽도록 65536을 곱한 후에 소수점 아래를 버리고 정수부만 출력한다.
+
+예제 입출력
+str1	str2	answer
+FRANCE	french	16384
+handshake	shake hands	65536
+aa1+aa2	AAAA12	43690
+E=M*C^2	e=m*c^2	65536
 
 
 
