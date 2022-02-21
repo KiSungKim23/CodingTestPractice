@@ -8,225 +8,192 @@
 #include <queue>
 #include <math.h>
 
+#define PLUS 0
+#define SUB 1
+#define MULTI 2
 
 using namespace std; 
 
-void printClass(vector<string> placeClass, int iLine, int iSite) {
-    for (int i = 0; i < placeClass.size(); i++) {
-        for (int j = 0; j < placeClass[i].size(); j++) {
-            if (i == iLine && j == iSite) {
-                cout << " A";
-            }
-            else {
-                cout << " " << placeClass[i][j];
-            }
-        }
-        cout << endl;
+void PrintN(vector<pair<long long, int>> num) {
+    for (int a = 0; a < num.size(); a++) {
+        cout << " " << num[a].first << " ";
     }
+    cout << endl;
     cout << endl;
 }
 
-bool StudentKeepDistance(vector<string> placeClass, int iLine, int iSite, int MoveIndex, int Dir) {
-    int MaxRow = placeClass.size();
-    int MaxCol = placeClass[0].size();
 
-    if (MoveIndex > 2) {
-        return false;
+void SetBase(string expression, vector<pair<long long, int>>* vecNum, vector<int> Operation[]) {
+    int iBefore = 0;
+
+    for (int i = 0; i < expression.size(); i++) {
+        if (expression[i] < '0' || expression[i] > '9') {
+            vecNum->push_back(pair<long long, int>(atoi(expression.substr(iBefore, i - iBefore).c_str()), -1));
+            switch (expression[i])
+            {
+            case '+':
+                Operation[PLUS].push_back(vecNum->size());
+                vecNum->push_back(pair<long long, int>(PLUS, -2));
+                break;
+            case '-':
+                Operation[SUB].push_back(vecNum->size());
+                vecNum->push_back(pair<long long, int>(SUB, -2));
+                break;
+            case '*':
+                Operation[MULTI].push_back(vecNum->size());
+                vecNum->push_back(pair<long long, int>(MULTI, -2));
+                break;
+            }
+            iBefore = ++i;
+        }
     }
-    if (iLine < 0 || iSite < 0 || iLine >= MaxRow || iSite >= MaxCol)
-        return false;
+    vecNum->push_back(pair<long long, int>(atoi(expression.substr(iBefore, expression.size() - iBefore).c_str()), -1));
 
-    if (placeClass[iLine][iSite] == 'X') {
-        return false;
-    }
-
-//    printClass(placeClass, iLine, iSite);
-
-    if (MoveIndex > 0 && placeClass[iLine][iSite] == 'P')
-        return true;
-
-    if (MoveIndex == 0) {
-        if (StudentKeepDistance(placeClass, iLine, iSite + 1, MoveIndex + 1, 0)) 
-            return true;
-        if (StudentKeepDistance(placeClass, iLine, iSite - 1, MoveIndex + 1, 1)) 
-            return true;
-        if (StudentKeepDistance(placeClass, iLine + 1, iSite, MoveIndex + 1, 2)) 
-            return true;
-        if (StudentKeepDistance(placeClass, iLine - 1, iSite, MoveIndex + 1, 3)) 
-            return true;
-
-        return false;
-    }
-
-    switch (Dir) {
-    case 0:
-        if (StudentKeepDistance(placeClass, iLine, iSite + 1, MoveIndex + 1, 0))
-            return true;
-        if (StudentKeepDistance(placeClass, iLine + 1, iSite, MoveIndex + 1, 2))
-            return true;
-        if (StudentKeepDistance(placeClass, iLine - 1, iSite, MoveIndex + 1, 3))
-            return true;
-        return false;
-    case 1:
-        if (StudentKeepDistance(placeClass, iLine, iSite - 1, MoveIndex + 1, 1))
-            return true;
-        if (StudentKeepDistance(placeClass, iLine + 1, iSite, MoveIndex + 1, 2))
-            return true;
-        if (StudentKeepDistance(placeClass, iLine - 1, iSite, MoveIndex + 1, 3))
-            return true;
-        return false;
-    case 2:
-        if (StudentKeepDistance(placeClass, iLine, iSite + 1, MoveIndex + 1, 0))
-            return true;
-        if (StudentKeepDistance(placeClass, iLine, iSite - 1, MoveIndex + 1, 1))
-            return true;
-        if (StudentKeepDistance(placeClass, iLine + 1, iSite, MoveIndex + 1, 2))
-            return true;
-        return false;
-    case 3:
-        if (StudentKeepDistance(placeClass, iLine, iSite + 1, MoveIndex + 1, 0))
-            return true;
-        if (StudentKeepDistance(placeClass, iLine, iSite - 1, MoveIndex + 1, 1))
-            return true;
-        if (StudentKeepDistance(placeClass, iLine - 1, iSite, MoveIndex + 1, 3))
-            return true;
-        return false;
-    }
-
-    return false;
 }
 
-int ClassKeepDistance(vector<string> placesClass) {
-    int answer = 1;
-    for (int i = 0; i < placesClass.size(); i++) {
-        for (int j = 0; j < placesClass[i].size(); j++) {
-            if (placesClass[i][j] == 'P') {
-                if (StudentKeepDistance(placesClass, i, j, 0, 0)) {
-                    return 0;
+void Calculate(vector<pair<long long, int>>* vecNum, int Index ,int Type, long long Value, int bLR = 0) {
+    long long Temp = 0;
+
+    switch (Type) {
+    case PLUS:
+        Temp = (*vecNum)[Index - 1].first + (*vecNum)[Index + 1].first;
+        break;
+    case SUB:
+        Temp = (*vecNum)[Index - 1].first - (*vecNum)[Index + 1].first;
+        break;
+    case MULTI:
+        Temp = (*vecNum)[Index - 1].first * (*vecNum)[Index + 1].first;
+        break;
+    default:
+        (*vecNum)[Index - 1].first = Value;
+        (*vecNum)[Index + 1].first = Value;
+
+        if (Index > 1 && Index < vecNum->size() - 2) {
+            if (bLR < 0) {
+                Calculate(vecNum, Index - 2, (*vecNum)[Index - 2].first, Value, -1);
+            }
+            else if (bLR > 0) {
+                Calculate(vecNum, Index + 2, (*vecNum)[Index + 2].first, Value, 1);
+            }
+        }
+        return;
+    }
+    if (bLR == 0) {
+        (*vecNum)[Index - 1].first = Temp;
+        (*vecNum)[Index + 1].first = Temp;
+        (*vecNum)[Index].first = -1;
+
+
+        if (Index > 1) {
+            Calculate(vecNum, Index - 2, (*vecNum)[Index - 2].first, Temp, -1);
+        }
+        if (Index < vecNum->size() - 2) {
+            Calculate(vecNum, Index + 2, (*vecNum)[Index + 2].first, Temp, 1);
+        }
+    }
+    return;
+}
+
+long long solution(string expression) {
+    vector<pair<long long, int>> Num;
+    vector<pair<long long, int>> NumResult;
+    vector<int> Operation[3];
+
+    vector<long long> vecAnswer;
+
+    SetBase(expression, &Num, Operation);
+    NumResult = Num;
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            for (int k = 0; k < 3; k++) {
+                if (i != j && j != k && i != k) {
+                    for (int veci = 0; veci < Operation[i].size(); veci++) {
+                        Calculate(&NumResult, Operation[i][veci], i , 0);
+                    }
+                    for (int vecj = 0; vecj < Operation[j].size(); vecj++) {
+                        Calculate(&NumResult, Operation[j][vecj], j, 0);
+                    }
+                    for (int veck = 0; veck < Operation[k].size(); veck++) {
+                        Calculate(&NumResult, Operation[k][veck], k, 0);
+                    }
+                    vecAnswer.push_back(NumResult[0].first < 0 ? NumResult[0].first * -1 : NumResult[0].first);
+                    NumResult.clear();
+                    NumResult = Num;
                 }
             }
         }
     }
+    
+    sort(vecAnswer.begin(), vecAnswer.end(),greater<>());
 
-    return answer;
-}
-
-vector<int> solution(vector<vector<string>> places) {
-    vector<int> answer;
-    for (int i = 0; i < places.size(); i++) {
-        answer.push_back(ClassKeepDistance(places[i]));
-    }
-    return answer;
+    return vecAnswer[0];
 }
 
 int main(void) {
-    solution({{"POOOP", "OXXOX", "OPXPX", "OOXOX", "POXXP"},
-        {"POOPX", "OXPXP", "PXXXO", "OXXXO", "OOOPP"},
-        {"PXOPX", "OXOXP", "OXPOX", "OXXOP", "PXPOX"},
-        {"OOOXX", "XOOOX", "OOOXX", "OXOOX", "OOOOO"},
-        {"PXPXP", "XPXPX", "PXPXP", "XPXPX", "PXPXP"}} );
+    cout << solution("50*6-3*2");
     return 0;
 }
 
 
 /*
-개발자를 희망하는 죠르디가 카카오에 면접을 보러 왔습니다.
+IT 벤처 회사를 운영하고 있는 라이언은 매년 사내 해커톤 대회를 개최하여 우승자에게 상금을 지급하고 있습니다.
+이번 대회에서는 우승자에게 지급되는 상금을 이전 대회와는 다르게 다음과 같은 방식으로 결정하려고 합니다.
+해커톤 대회에 참가하는 모든 참가자들에게는 숫자들과 3가지의 연산문자(+, -, *) 만으로 이루어진 연산 수식이 전달되며, 
+참가자의 미션은 전달받은 수식에 포함된 연산자의 우선순위를 자유롭게 재정의하여 만들 수 있는 가장 큰 숫자를 제출하는 것입니다.
 
-코로나 바이러스 감염 예방을 위해 응시자들은 거리를 둬서 대기를 해야하는데 개발 직군 면접인 만큼
-아래와 같은 규칙으로 대기실에 거리를 두고 앉도록 안내하고 있습니다.
+단, 연산자의 우선순위를 새로 정의할 때, 같은 순위의 연산자는 없어야 합니다. 즉, + > - > * 또는 - > * > + 등과 같이 연산자 우선순위를 정의할 수 있으나
++,* > - 또는 * > +,-처럼 2개 이상의 연산자가 동일한 순위를 가지도록 연산자 우선순위를 정의할 수는 없습니다. 
+수식에 포함된 연산자가 2개라면 정의할 수 있는 연산자 우선순위 조합은 2! = 2가지이며, 연산자가 3개라면 3! = 6가지 조합이 가능합니다.
+만약 계산된 결과가 음수라면 해당 숫자의 절댓값으로 변환하여 제출하며 제출한 숫자가 가장 큰 참가자를 우승자로 선정하며, 우승자가 제출한 숫자를 우승상금으로 지급하게 됩니다.
 
-대기실은 5개이며, 각 대기실은 5x5 크기입니다.
-거리두기를 위하여 응시자들 끼리는 맨해튼 거리1가 2 이하로 앉지 말아 주세요.
-단 응시자가 앉아있는 자리 사이가 파티션으로 막혀 있을 경우에는 허용합니다.
-예를 들어,
+예를 들어, 참가자 중 네오가 아래와 같은 수식을 전달받았다고 가정합니다.
 
-PXP.png	PX_XP.png	PX_OP.png
-위 그림처럼 자리 사이에 파티션이 존재한다면 맨해튼 거리가 2여도 거리두기를 지킨 것입니다.	
-위 그림처럼 파티션을 사이에 두고 앉은 경우도 거리두기를 지킨 것입니다.	
-위 그림처럼 자리 사이가 맨해튼 거리 2이고 사이에 빈 테이블이 있는 경우는 거리두기를 지키지 않은 것입니다.
-P.png	O.png	X.png
-응시자가 앉아있는 자리(P)를 의미합니다.	빈 테이블(O)을 의미합니다.	파티션(X)을 의미합니다.
-5개의 대기실을 본 죠르디는 각 대기실에서 응시자들이 거리두기를 잘 기키고 있는지 알고 싶어졌습니다. 
-자리에 앉아있는 응시자들의 정보와 대기실 구조를 대기실별로 담은 2차원 문자열 배열 places가 매개변수로 주어집니다. 
-각 대기실별로 거리두기를 지키고 있으면 1을, 한 명이라도 지키지 않고 있으면 0을 배열에 담아 return 하도록 solution 함수를 완성해 주세요.
+"100-200*300-500+20"
 
-제한사항
-places의 행 길이(대기실 개수) = 5
-places의 각 행은 하나의 대기실 구조를 나타냅니다.
-places의 열 길이(대기실 세로 길이) = 5
-places의 원소는 P,O,X로 이루어진 문자열입니다.
-places 원소의 길이(대기실 가로 길이) = 5
-P는 응시자가 앉아있는 자리를 의미합니다.
-O는 빈 테이블을 의미합니다.
-X는 파티션을 의미합니다.
-입력으로 주어지는 5개 대기실의 크기는 모두 5x5 입니다.
-return 값 형식
-1차원 정수 배열에 5개의 원소를 담아서 return 합니다.
-places에 담겨 있는 5개 대기실의 순서대로, 거리두기 준수 여부를 차례대로 배열에 담습니다.
-각 대기실 별로 모든 응시자가 거리두기를 지키고 있으면 1을, 한 명이라도 지키지 않고 있으면 0을 담습니다.
+일반적으로 수학 및 전산학에서 약속된 연산자 우선순위에 따르면 더하기와 빼기는 서로 동등하며 곱하기는 더하기, 빼기에 비해 우선순위가 높아 * > +,- 로 우선순위가 정의되어 있습니다.
+대회 규칙에 따라 + > - > * 또는 - > * > + 등과 같이 연산자 우선순위를 정의할 수 있으나 +,* > - 또는 * > +,- 처럼 2개 이상의 연산자가 동일한 순위를 가지도록 연산자 우선순위를 정의할 수는 없습니다.
+수식에 연산자가 3개 주어졌으므로 가능한 연산자 우선순위 조합은 3! = 6가지이며, 그 중 + > - > * 로 연산자 우선순위를 정한다면 결괏값은 22,000원이 됩니다.
+반면에 * > + > - 로 연산자 우선순위를 정한다면 수식의 결괏값은 -60,420 이지만, 규칙에 따라 우승 시 상금은 절댓값인 60,420원이 됩니다.
+
+참가자에게 주어진 연산 수식이 담긴 문자열 expression이 매개변수로 주어질 때, 우승 시 받을 수 있는 가장 큰 상금 금액을 return 하도록 solution 함수를 완성해주세요.
+
+[제한사항]
+expression은 길이가 3 이상 100 이하인 문자열입니다.
+expression은 공백문자, 괄호문자 없이 오로지 숫자와 3가지의 연산자(+, -, *) 만으로 이루어진 올바른 중위표기법(연산의 두 대상 사이에 연산기호를 사용하는 방식)으로 표현된 연산식입니다. 
+잘못된 연산식은 입력으로 주어지지 않습니다.
+즉, "402+-561*"처럼 잘못된 수식은 올바른 중위표기법이 아니므로 주어지지 않습니다.
+expression의 피연산자(operand)는 0 이상 999 이하의 숫자입니다.
+즉, "100-2145*458+12"처럼 999를 초과하는 피연산자가 포함된 수식은 입력으로 주어지지 않습니다.
+"-56+100"처럼 피연산자가 음수인 수식도 입력으로 주어지지 않습니다.
+expression은 적어도 1개 이상의 연산자를 포함하고 있습니다.
+연산자 우선순위를 어떻게 적용하더라도, expression의 중간 계산값과 최종 결괏값은 절댓값이 263 - 1 이하가 되도록 입력이 주어집니다.
+같은 연산자끼리는 앞에 있는 것의 우선순위가 더 높습니다.
 입출력 예
-places	result
-[["POOOP", "OXXOX", "OPXPX", "OOXOX", "POXXP"],
-["POOPX", "OXPXP", "PXXXO", "OXXXO", "OOOPP"],
-["PXOPX", "OXOXP", "OXPOX", "OXXOP", "PXPOX"],
-["OOOXX", "XOOOX", "OOOXX", "OXOOX", "OOOOO"],
-["PXPXP", "XPXPX", "PXPXP", "XPXPX", "PXPXP"]]	[1, 0, 1, 1, 1]
-입출력 예 설명
+expression	result
+"100-200*300-500+20"	60420
+"50*6-3*2"	300
+입출력 예에 대한 설명
 입출력 예 #1
+* > + > - 로 연산자 우선순위를 정했을 때, 가장 큰 절댓값을 얻을 수 있습니다.
+연산 순서는 아래와 같습니다.
+100-200*300-500+20
+= 100-(200*300)-500+20
+= 100-60000-(500+20)
+= (100-60000)-520
+= (-59900-520)
+= -60420
+따라서, 우승 시 받을 수 있는 상금은 |-60420| = 60420 입니다.
 
-첫 번째 대기실
-
-No.	0	1	2	3	4
-0	P	O	O	O	P
-1	O	X	X	O	X
-2	O	P	X	P	X
-3	O	O	X	O	X
-4	P	O	X	X	P
-모든 응시자가 거리두기를 지키고 있습니다.
-두 번째 대기실
-
-No.	0	1	2	3	4
-0	P	O	O	P	X
-1	O	X	P	X	P
-2	P	X	X	X	O
-3	O	X	X	X	O
-4	O	O	O	P	P
-(0, 0) 자리의 응시자와 (2, 0) 자리의 응시자가 거리두기를 지키고 있지 않습니다.
-(1, 2) 자리의 응시자와 (0, 3) 자리의 응시자가 거리두기를 지키고 있지 않습니다.
-(4, 3) 자리의 응시자와 (4, 4) 자리의 응시자가 거리두기를 지키고 있지 않습니다.
-세 번째 대기실
-
-No.	0	1	2	3	4
-0	P	X	O	P	X
-1	O	X	O	X	P
-2	O	X	P	O	X
-3	O	X	X	O	P
-4	P	X	P	O	X
-모든 응시자가 거리두기를 지키고 있습니다.
-네 번째 대기실
-
-No.	0	1	2	3	4
-0	O	O	O	X	X
-1	X	O	O	O	X
-2	O	O	O	X	X
-3	O	X	O	O	X
-4	O	O	O	O	O
-대기실에 응시자가 없으므로 거리두기를 지키고 있습니다.
-다섯 번째 대기실
-
-No.	0	1	2	3	4
-0	P	X	P	X	P
-1	X	P	X	P	X
-2	P	X	P	X	P
-3	X	P	X	P	X
-4	P	X	P	X	P
-모든 응시자가 거리두기를 지키고 있습니다.
-두 번째 대기실을 제외한 모든 대기실에서 거리두기가 지켜지고 있으므로, 배열 [1, 0, 1, 1, 1]을 return 합니다.
-
-제한시간 안내
-정확성 테스트 : 10초
-두 테이블 T1, T2가 행렬 (r1, c1), (r2, c2)에 각각 위치하고 있다면, T1, T2 사이의 맨해튼 거리는 |r1 - r2| + |c1 - c2| 입니다. ↩
-
+입출력 예 #2
+- > * 로 연산자 우선순위를 정했을 때, 가장 큰 절댓값을 얻을 수 있습니다.
+연산 순서는 아래와 같습니다.(expression에서 + 연산자는 나타나지 않았으므로, 고려할 필요가 없습니다.)
+50*6-3*2
+= 50*(6-3)*2
+= (50*3)*2
+= 150*2
+= 300
+따라서, 우승 시 받을 수 있는 상금은 300 입니다.
 
 */
 
