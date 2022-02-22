@@ -8,192 +8,132 @@
 #include <queue>
 #include <math.h>
 
-#define PLUS 0
-#define SUB 1
-#define MULTI 2
-
 using namespace std; 
 
-void PrintN(vector<pair<long long, int>> num) {
-    for (int a = 0; a < num.size(); a++) {
-        cout << " " << num[a].first << " ";
-    }
-    cout << endl;
-    cout << endl;
+bool SortingSize(vector<int>* a, vector<int>* b) {
+    return a->size() < b->size();
 }
 
+vector<int> solution(string s) {
+    vector<int> answer;
 
-void SetBase(string expression, vector<pair<long long, int>>* vecNum, vector<int> Operation[]) {
-    int iBefore = 0;
+    vector<vector<int>*> StringTemp;
 
-    for (int i = 0; i < expression.size(); i++) {
-        if (expression[i] < '0' || expression[i] > '9') {
-            vecNum->push_back(pair<long long, int>(atoi(expression.substr(iBefore, i - iBefore).c_str()), -1));
-            switch (expression[i])
-            {
-            case '+':
-                Operation[PLUS].push_back(vecNum->size());
-                vecNum->push_back(pair<long long, int>(PLUS, -2));
-                break;
-            case '-':
-                Operation[SUB].push_back(vecNum->size());
-                vecNum->push_back(pair<long long, int>(SUB, -2));
-                break;
-            case '*':
-                Operation[MULTI].push_back(vecNum->size());
-                vecNum->push_back(pair<long long, int>(MULTI, -2));
-                break;
-            }
-            iBefore = ++i;
+    vector<int>* VecTemp = nullptr;
+
+    int IndexTemp = 0;
+
+    bool add = true;
+
+    for (int i = 1; i < s.size() - 1; i++) {
+        if (s[i] == '{') {
+            VecTemp = new vector<int>;
+            IndexTemp = i + 1;
+            continue;
         }
+        if (s[i] == '}') {
+            VecTemp->push_back(stoi(s.substr(IndexTemp, i - IndexTemp)));
+            StringTemp.push_back(VecTemp);
+            i++;
+            continue;
+        }
+        if (s[i] == ',') {
+            VecTemp->push_back(stoi(s.substr(IndexTemp, i - IndexTemp))); 
+            IndexTemp = i + 1;
+            continue;
+        }
+        
     }
-    vecNum->push_back(pair<long long, int>(atoi(expression.substr(iBefore, expression.size() - iBefore).c_str()), -1));
 
-}
+    sort(StringTemp.begin(), StringTemp.end(), SortingSize);
 
-void Calculate(vector<pair<long long, int>>* vecNum, int Index ,int Type, long long Value, int bLR = 0) {
-    long long Temp = 0;
-
-    switch (Type) {
-    case PLUS:
-        Temp = (*vecNum)[Index - 1].first + (*vecNum)[Index + 1].first;
-        break;
-    case SUB:
-        Temp = (*vecNum)[Index - 1].first - (*vecNum)[Index + 1].first;
-        break;
-    case MULTI:
-        Temp = (*vecNum)[Index - 1].first * (*vecNum)[Index + 1].first;
-        break;
-    default:
-        (*vecNum)[Index - 1].first = Value;
-        (*vecNum)[Index + 1].first = Value;
-
-        if (Index > 1 && Index < vecNum->size() - 2) {
-            if (bLR < 0) {
-                Calculate(vecNum, Index - 2, (*vecNum)[Index - 2].first, Value, -1);
-            }
-            else if (bLR > 0) {
-                Calculate(vecNum, Index + 2, (*vecNum)[Index + 2].first, Value, 1);
-            }
-        }
-        return;
-    }
-    if (bLR == 0) {
-        (*vecNum)[Index - 1].first = Temp;
-        (*vecNum)[Index + 1].first = Temp;
-        (*vecNum)[Index].first = -1;
-
-
-        if (Index > 1) {
-            Calculate(vecNum, Index - 2, (*vecNum)[Index - 2].first, Temp, -1);
-        }
-        if (Index < vecNum->size() - 2) {
-            Calculate(vecNum, Index + 2, (*vecNum)[Index + 2].first, Temp, 1);
-        }
-    }
-    return;
-}
-
-long long solution(string expression) {
-    vector<pair<long long, int>> Num;
-    vector<pair<long long, int>> NumResult;
-    vector<int> Operation[3];
-
-    vector<long long> vecAnswer;
-
-    SetBase(expression, &Num, Operation);
-    NumResult = Num;
-
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            for (int k = 0; k < 3; k++) {
-                if (i != j && j != k && i != k) {
-                    for (int veci = 0; veci < Operation[i].size(); veci++) {
-                        Calculate(&NumResult, Operation[i][veci], i , 0);
-                    }
-                    for (int vecj = 0; vecj < Operation[j].size(); vecj++) {
-                        Calculate(&NumResult, Operation[j][vecj], j, 0);
-                    }
-                    for (int veck = 0; veck < Operation[k].size(); veck++) {
-                        Calculate(&NumResult, Operation[k][veck], k, 0);
-                    }
-                    vecAnswer.push_back(NumResult[0].first < 0 ? NumResult[0].first * -1 : NumResult[0].first);
-                    NumResult.clear();
-                    NumResult = Num;
+    for (int i = 0; i < StringTemp.size(); i++) {
+        for (int j = 0; j < StringTemp[i]->size(); j++) {
+            for (int k = 0; k < answer.size(); k++) {
+                if ((*StringTemp[i])[j] == answer[k]) {
+                    add = false;
                 }
             }
+            if (add) {
+                answer.push_back((*StringTemp[i])[j]);
+            }
+
+            add = true;
         }
     }
     
-    sort(vecAnswer.begin(), vecAnswer.end(),greater<>());
+    for (int i = 0; i < StringTemp.size(); i++) {
+        delete StringTemp[i];
+    }
 
-    return vecAnswer[0];
+    return answer;
 }
 
 int main(void) {
-    cout << solution("50*6-3*2");
+    solution("{{2},{2,1},{2,1,3},{2,1,3,4}}");
     return 0;
 }
 
 
 /*
-IT 벤처 회사를 운영하고 있는 라이언은 매년 사내 해커톤 대회를 개최하여 우승자에게 상금을 지급하고 있습니다.
-이번 대회에서는 우승자에게 지급되는 상금을 이전 대회와는 다르게 다음과 같은 방식으로 결정하려고 합니다.
-해커톤 대회에 참가하는 모든 참가자들에게는 숫자들과 3가지의 연산문자(+, -, *) 만으로 이루어진 연산 수식이 전달되며, 
-참가자의 미션은 전달받은 수식에 포함된 연산자의 우선순위를 자유롭게 재정의하여 만들 수 있는 가장 큰 숫자를 제출하는 것입니다.
+셀수있는 수량의 순서있는 열거 또는 어떤 순서를 따르는 요소들의 모음을 튜플(tuple)이라고 합니다. n개의 요소를 가진 튜플을 n-튜플(n-tuple)이라고 하며, 다음과 같이 표현할 수 있습니다.
 
-단, 연산자의 우선순위를 새로 정의할 때, 같은 순위의 연산자는 없어야 합니다. 즉, + > - > * 또는 - > * > + 등과 같이 연산자 우선순위를 정의할 수 있으나
-+,* > - 또는 * > +,-처럼 2개 이상의 연산자가 동일한 순위를 가지도록 연산자 우선순위를 정의할 수는 없습니다. 
-수식에 포함된 연산자가 2개라면 정의할 수 있는 연산자 우선순위 조합은 2! = 2가지이며, 연산자가 3개라면 3! = 6가지 조합이 가능합니다.
-만약 계산된 결과가 음수라면 해당 숫자의 절댓값으로 변환하여 제출하며 제출한 숫자가 가장 큰 참가자를 우승자로 선정하며, 우승자가 제출한 숫자를 우승상금으로 지급하게 됩니다.
+(a1, a2, a3, ..., an)
+튜플은 다음과 같은 성질을 가지고 있습니다.
 
-예를 들어, 참가자 중 네오가 아래와 같은 수식을 전달받았다고 가정합니다.
+중복된 원소가 있을 수 있습니다. ex : (2, 3, 1, 2)
+원소에 정해진 순서가 있으며, 원소의 순서가 다르면 서로 다른 튜플입니다. ex : (1, 2, 3) ≠ (1, 3, 2)
+튜플의 원소 개수는 유한합니다.
+원소의 개수가 n개이고, 중복되는 원소가 없는 튜플 (a1, a2, a3, ..., an)이 주어질 때(단, a1, a2, ..., an은 자연수), 이는 다음과 같이 집합 기호 '{', '}'를 이용해 표현할 수 있습니다.
 
-"100-200*300-500+20"
+{{a1}, {a1, a2}, {a1, a2, a3}, {a1, a2, a3, a4}, ... {a1, a2, a3, a4, ..., an}}
+예를 들어 튜플이 (2, 1, 3, 4)인 경우 이는
 
-일반적으로 수학 및 전산학에서 약속된 연산자 우선순위에 따르면 더하기와 빼기는 서로 동등하며 곱하기는 더하기, 빼기에 비해 우선순위가 높아 * > +,- 로 우선순위가 정의되어 있습니다.
-대회 규칙에 따라 + > - > * 또는 - > * > + 등과 같이 연산자 우선순위를 정의할 수 있으나 +,* > - 또는 * > +,- 처럼 2개 이상의 연산자가 동일한 순위를 가지도록 연산자 우선순위를 정의할 수는 없습니다.
-수식에 연산자가 3개 주어졌으므로 가능한 연산자 우선순위 조합은 3! = 6가지이며, 그 중 + > - > * 로 연산자 우선순위를 정한다면 결괏값은 22,000원이 됩니다.
-반면에 * > + > - 로 연산자 우선순위를 정한다면 수식의 결괏값은 -60,420 이지만, 규칙에 따라 우승 시 상금은 절댓값인 60,420원이 됩니다.
+{{2}, {2, 1}, {2, 1, 3}, {2, 1, 3, 4}}
+와 같이 표현할 수 있습니다. 이때, 집합은 원소의 순서가 바뀌어도 상관없으므로
 
-참가자에게 주어진 연산 수식이 담긴 문자열 expression이 매개변수로 주어질 때, 우승 시 받을 수 있는 가장 큰 상금 금액을 return 하도록 solution 함수를 완성해주세요.
+{{2}, {2, 1}, {2, 1, 3}, {2, 1, 3, 4}}
+{{2, 1, 3, 4}, {2}, {2, 1, 3}, {2, 1}}
+{{1, 2, 3}, {2, 1}, {1, 2, 4, 3}, {2}}
+는 모두 같은 튜플 (2, 1, 3, 4)를 나타냅니다.
+
+특정 튜플을 표현하는 집합이 담긴 문자열 s가 매개변수로 주어질 때, s가 표현하는 튜플을 배열에 담아 return 하도록 solution 함수를 완성해주세요.
 
 [제한사항]
-expression은 길이가 3 이상 100 이하인 문자열입니다.
-expression은 공백문자, 괄호문자 없이 오로지 숫자와 3가지의 연산자(+, -, *) 만으로 이루어진 올바른 중위표기법(연산의 두 대상 사이에 연산기호를 사용하는 방식)으로 표현된 연산식입니다. 
-잘못된 연산식은 입력으로 주어지지 않습니다.
-즉, "402+-561*"처럼 잘못된 수식은 올바른 중위표기법이 아니므로 주어지지 않습니다.
-expression의 피연산자(operand)는 0 이상 999 이하의 숫자입니다.
-즉, "100-2145*458+12"처럼 999를 초과하는 피연산자가 포함된 수식은 입력으로 주어지지 않습니다.
-"-56+100"처럼 피연산자가 음수인 수식도 입력으로 주어지지 않습니다.
-expression은 적어도 1개 이상의 연산자를 포함하고 있습니다.
-연산자 우선순위를 어떻게 적용하더라도, expression의 중간 계산값과 최종 결괏값은 절댓값이 263 - 1 이하가 되도록 입력이 주어집니다.
-같은 연산자끼리는 앞에 있는 것의 우선순위가 더 높습니다.
-입출력 예
-expression	result
-"100-200*300-500+20"	60420
-"50*6-3*2"	300
+s의 길이는 5 이상 1,000,000 이하입니다.
+s는 숫자와 '{', '}', ',' 로만 이루어져 있습니다.
+숫자가 0으로 시작하는 경우는 없습니다.
+s는 항상 중복되는 원소가 없는 튜플을 올바르게 표현하고 있습니다.
+s가 표현하는 튜플의 원소는 1 이상 100,000 이하인 자연수입니다.
+return 하는 배열의 길이가 1 이상 500 이하인 경우만 입력으로 주어집니다.
+[입출력 예]
+s	result
+"{{2},{2,1},{2,1,3},{2,1,3,4}}"	[2, 1, 3, 4]
+"{{1,2,3},{2,1},{1,2,4,3},{2}}"	[2, 1, 3, 4]
+"{{20,111},{111}}"	[111, 20]
+"{{123}}"	[123]
+"{{4,2,3},{3},{2,3,4,1},{2,3}}"	[3, 2, 4, 1]
 입출력 예에 대한 설명
 입출력 예 #1
-* > + > - 로 연산자 우선순위를 정했을 때, 가장 큰 절댓값을 얻을 수 있습니다.
-연산 순서는 아래와 같습니다.
-100-200*300-500+20
-= 100-(200*300)-500+20
-= 100-60000-(500+20)
-= (100-60000)-520
-= (-59900-520)
-= -60420
-따라서, 우승 시 받을 수 있는 상금은 |-60420| = 60420 입니다.
+문제 예시와 같습니다.
 
 입출력 예 #2
-- > * 로 연산자 우선순위를 정했을 때, 가장 큰 절댓값을 얻을 수 있습니다.
-연산 순서는 아래와 같습니다.(expression에서 + 연산자는 나타나지 않았으므로, 고려할 필요가 없습니다.)
-50*6-3*2
-= 50*(6-3)*2
-= (50*3)*2
-= 150*2
-= 300
-따라서, 우승 시 받을 수 있는 상금은 300 입니다.
+문제 예시와 같습니다.
+
+입출력 예 #3
+(111, 20)을 집합 기호를 이용해 표현하면 {{111}, {111,20}}이 되며, 이는 {{20,111},{111}}과 같습니다.
+
+입출력 예 #4
+(123)을 집합 기호를 이용해 표현하면 {{123}} 입니다.
+
+입출력 예 #5
+(3, 2, 4, 1)을 집합 기호를 이용해 표현하면 {{3},{3,2},{3,2,4},{3,2,4,1}}이 되며, 이는 {{4,2,3},{3},{2,3,4,1},{2,3}}과 같습니다.
+
+
+
+
+
+
 
 */
 
